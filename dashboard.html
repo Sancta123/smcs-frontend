@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Dashboard</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<style>
+.welcome{background:linear-gradient(135deg,var(--green-800),var(--green-600));border-radius:var(--radius-lg);padding:26px 30px;color:#fff;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden;}
+.welcome::before{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.04);}
+[data-theme="dark"] .welcome{background:linear-gradient(135deg,var(--green-900),var(--green-800));}
+.w-title{font-family:var(--font-display);font-size:1.5rem;font-weight:700;margin-bottom:4px;position:relative;}
+.w-sub{color:rgba(255,255,255,0.6);font-size:0.84rem;position:relative;}
+.w-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.w-stat{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:9px;padding:11px 16px;text-align:center;min-width:70px;}
+.w-stat-v{font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:#fff;line-height:1;}
+.w-stat-l{font-size:0.64rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.08em;margin-top:3px;}
+.offline-pill{display:none;align-items:center;gap:6px;background:rgba(200,168,75,0.25);border:1px solid rgba(200,168,75,0.4);color:#fde68a;padding:5px 12px;border-radius:20px;font-size:0.76rem;font-weight:600;margin-top:10px;position:relative;}
+.row-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.row-item:last-child{border-bottom:none;}
+.row-info{flex:1;min-width:0;}
+.row-name{font-weight:600;font-size:0.84rem;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.row-meta{font-size:0.73rem;color:var(--muted);}
+.m-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.m-dot.active{background:var(--success)}.m-dot.pending{background:var(--warning)}.m-dot.completed{background:var(--muted)}
+.sos-it{background:var(--danger-bg);border:1px solid rgba(185,28,28,0.15);border-radius:9px;padding:12px 14px;margin-bottom:10px;}
+.sos-it.resolved{background:var(--surface2);border-color:var(--border);opacity:0.7;}
+.sos-it h5{font-size:0.84rem;font-weight:700;color:var(--danger);margin-bottom:2px;}
+.sos-it.resolved h5{color:var(--muted);}
+.sos-it p{font-size:0.74rem;color:var(--muted);}
+.fam-portal{background:linear-gradient(135deg,#1d4ed8,#1e3a8a);border-radius:var(--radius-lg);padding:36px;text-align:center;color:#fff;margin-bottom:22px;}
+.fam-portal h2{font-family:var(--font-display);font-size:1.6rem;margin-bottom:10px;}
+.fam-portal p{color:rgba(255,255,255,0.7);font-size:0.9rem;line-height:1.75;max-width:480px;margin:0 auto 22px;}
+.qa-link{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;color:var(--text);font-size:0.84rem;font-weight:600;transition:all 0.15s;background:var(--surface);}
+.qa-link:hover{background:var(--green-50);border-color:var(--green-200);}
+[data-theme="dark"] .qa-link:hover{background:rgba(74,124,74,0.15);border-color:var(--green-700);}
+.sys-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.82rem;}
+.sys-row:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+<div class="sidebar" id="sidebar"></div>
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="page-body">
+    <div class="welcome">
+      <div>
+        <div class="w-title" id="w-name">Welcome back</div>
+        <div class="w-sub" id="w-sub">Loading...</div>
+        <div class="offline-pill" id="offpill"><i data-lucide="archive" style="width:14px;height:14px;margin-right:4px"></i> <span id="offcount">0</span> messages queued</div>
+      </div>
+      <div class="w-stats" id="w-stats"></div>
+    </div>
+    <div class="stats-grid g4 mb-6" id="stats-grid"></div>
+    <div id="fam-view" style="display:none"></div>
+    <div id="mil-view" style="display:none"></div>
+  </div>
+</div>
+<div class="net-banner"></div>
+<button class="helpbot-fab" id="hb-fab"><i data-lucide="bot"></i></button>
+<div class="helpbot-panel" id="hb-panel">
+  <div class="helpbot-head"><div class="helpbot-avatar"><i data-lucide="bot"></i></div><div><h4>SMCS Assistant</h4><p>Ask me anything</p></div></div>
+  <div class="helpbot-msgs" id="hb-msgs"><div class="bot-msg">Hello! Ask me about messages, missions, SOS, passwords, dark mode, or anything else about SMCS.</div></div>
+  <div class="helpbot-chips"><div class="hchip">Messages</div><div class="hchip">Offline mode</div><div class="hchip">SOS</div><div class="hchip">Missions</div><div class="hchip">Dark mode</div></div>
+  <div class="helpbot-input-row"><input class="helpbot-input" id="hb-input" placeholder="Ask anything..."/><button class="helpbot-send" id="hb-send"><i data-lucide="send" style="width:16px;height:16px"></i></button></div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+let user;
+const AVC={soldier:'av-green',commander:'av-gold',family:'av-blue',admin:'av-purple'};
+
+async function init(){
+  user=await requireAuth();if(!user)return;
+  renderSidebar(user,'dashboard');
+  renderTopbar(user,'Dashboard',new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}));
+  initSocket(user.id);
+  document.getElementById('w-name').textContent=`Welcome back, ${user.name.split(' ').slice(-1)[0]}`;
+  document.getElementById('w-sub').textContent=`${user.role.charAt(0).toUpperCase()+user.role.slice(1)} · ${user.unit||'SMCS Platform'} · Secure session`;
+  checkQ(); renderStats();
+  if(user.role==='family'){document.getElementById('fam-view').style.display='block';loadFamView();}
+  else{document.getElementById('mil-view').style.display='block';loadMilView();}
+  document.addEventListener('smcs:message', () => { checkQ(); loadMessageCount(); });
+  document.addEventListener('smcs:mission',()=>{if(user.role!=='family')loadMissions();});
+  document.addEventListener('smcs:sos',()=>{if(user.role==='commander'||user.role==='admin')loadRightPanel();});
+  document.addEventListener('smcs:status',()=>loadUnitStatus());
+  window.addEventListener('online',()=>{checkQ(); if(user.role!=='family')loadMilView(); loadMessageCount(); });
+  window.addEventListener('offline',checkQ);
+  loadMessageCount();
+}
+
+async function loadMessageCount() {
+  try {
+    const { count } = await api('/api/messages/count');
+    const sv0 = document.getElementById('sv0');
+    if (sv0 && (user.role === 'soldier' || user.role === 'family')) {
+      sv0.textContent = count;
+    }
+    // Also update profile widget if it exists
+    const mc = document.getElementById('msg-count');
+    if (mc) mc.textContent = count;
+  } catch (e) {}
+}
+
+function checkQ(){
+  const q=JSON.parse(localStorage.getItem('smcs_offline_queue')||'[]');
+  const el=document.getElementById('offpill');
+  document.getElementById('offcount').textContent=q.length;
+  if(el)el.style.display=q.length>0?'inline-flex':'none';
+}
+
+function renderStats(){
+  const conf={
+    soldier:[{i:'message-square',l:'Messages',c:'g'},{i:'target',l:'Active Missions',c:'gold'},{i:'radio',l:'Network',c:navigator.onLine?'g':'r',v:navigator.onLine?'Online':'Offline'},{i:'lock',l:'Encryption',c:'g',v:'Active'}],
+    commander:[{i:'users',l:'Online Users',c:'g'},{i:'target',l:'Missions',c:'gold'},{i:'alert-triangle',l:'Active SOS',c:'r'},{i:'radio',l:'Network',c:navigator.onLine?'g':'r',v:navigator.onLine?'Online':'Offline'}],
+    family:[{i:'message-square',l:'Messages',c:'g'},{i:'lock',l:'Encrypted',c:'g',v:'Yes'},{i:'radio',l:'Connection',c:navigator.onLine?'g':'r',v:navigator.onLine?'Online':'Offline'},{i:'heart',l:'Portal',c:'g',v:'Secure'}],
+    admin:[{i:'users',l:'Total Users',c:'g'},{i:'target',l:'Missions',c:'gold'},{i:'alert-triangle',l:'Active SOS',c:'r'},{i:'shield',l:'System',c:'g',v:'OK'}],
+  };
+  const items=(conf[user.role]||conf.soldier);
+  document.getElementById('stats-grid').innerHTML=items.map((s,i)=>`<div class="stat-card fade-up" style="animation-delay:${i*0.07}s"><div class="stat-icon ${s.c}"><i data-lucide="${s.i}"></i></div><div><div class="stat-val" id="sv${i}">${s.v||'—'}</div><div class="stat-label">${s.l}</div></div></div>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function loadMilView(){
+  const el=document.getElementById('mil-view');
+  el.innerHTML=`<div class="grid-2 mb-6"><div class="card"><div class="card-header"><span class="card-title"><i data-lucide="target" class="icon-inline"></i> Active Missions</span><a href="/missions" style="font-size:0.79rem;color:var(--green-600)">View all →</a></div><div class="card-body" id="mis-prev"></div></div><div class="card"><div class="card-body" id="right-panel" style="padding:20px"></div></div></div><div class="grid-3"><div class="card"><div class="card-header"><span class="card-title"><i data-lucide="users" class="icon-inline"></i> Unit Status</span><a href="/users" style="font-size:0.79rem;color:var(--green-600)">All →</a></div><div class="card-body" id="unit-st"></div></div><div class="card"><div class="card-header"><span class="card-title"><i data-lucide="radio" class="icon-inline"></i> System</span></div><div class="card-body" id="sys-mini"></div></div><div class="card"><div class="card-header"><span class="card-title"><i data-lucide="zap" class="icon-inline"></i> Quick Actions</span></div><div class="card-body" style="display:flex;flex-direction:column;gap:9px" id="qa"></div></div></div>`;
+  loadMissions(); loadRightPanel(); loadUnitStatus(); renderSysMini(); renderQA();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function loadMissions(){
+  try{
+    const ms=await api('/api/missions');const active=ms.filter(m=>m.status==='active');
+    const sv1=document.getElementById('sv1');if(sv1)sv1.textContent=active.length;
+    const el=document.getElementById('mis-prev');if(!el)return;
+    if(!ms.length){el.innerHTML='<div class="empty-state"><div class="empty-icon"><i data-lucide="target"></i></div><div class="empty-text">No missions yet</div></div>';if (typeof lucide !== 'undefined') lucide.createIcons();return;}
+    el.innerHTML=ms.slice(0,5).map(m=>`<div class="row-item"><div class="m-dot ${m.status}"></div><div class="row-info"><div class="row-name">${m.title}</div><div class="row-meta">📍 ${m.location}</div></div><span class="badge badge-${m.status}">${m.status}</span></div>`).join('');
+    document.getElementById('w-stats').innerHTML=`<div class="w-stat"><div class="w-stat-v">${ms.length}</div><div class="w-stat-l">Missions</div></div><div class="w-stat"><div class="w-stat-v">${active.length}</div><div class="w-stat-l">Active</div></div>`;
+  }catch(e){}
+}
+
+async function loadRightPanel(){
+  const el=document.getElementById('right-panel');if(!el)return;
+  if(user.role==='commander'||user.role==='admin'){
+    try{
+      const alerts=await api('/api/sos');const active=alerts.filter(a=>!a.resolved);
+      const sv2=document.getElementById('sv2');if(sv2)sv2.textContent=active.length;
+      el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><span class="card-title"><i data-lucide="alert-triangle" class="icon-inline"></i> SOS Alerts</span><span class="badge badge-${active.length>0?'high':'active'}">${active.length} active</span></div>${!alerts.length?'<div class="empty-state"><div class="empty-icon"><i data-lucide="check-circle"></i></div><div class="empty-text">No SOS alerts</div></div>':alerts.slice(0,4).map(a=>`<div class="sos-it ${a.resolved?'resolved':''}"><h5><i data-lucide="alert-triangle" class="icon-inline" style="color:var(--danger)"></i> ${a.sender_name} <span style="font-weight:400;font-size:0.72rem">(${a.sender_unit})</span></h5><p><i data-lucide="map-pin" class="icon-inline-xs"></i> ${a.location} · ${new Date(a.timestamp).toLocaleString()}</p>${!a.resolved?`<button onclick="resolveA('${a.id}')" style="margin-top:7px;padding:3px 11px;background:var(--success);color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:0.74rem;font-family:inherit;font-weight:600">✓ Resolve</button>`:`<div style="font-size:0.72rem;color:var(--success);margin-top:3px"><i data-lucide="check-circle" class="icon-inline-xs"></i> Resolved</div>`}</div>`).join('')}`;
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    }catch(e){}
+  } else {
+    try{
+      const users=await api('/api/users');const c=users.filter(u=>u.role==='soldier'||u.role==='commander').slice(0,5);
+      el.innerHTML=`<div style="margin-bottom:14px"><span class="card-title">👥 Contacts</span></div>${c.map(u=>`<div class="row-item">${renderAvatarHTML(u.avatar, u.role, 'avatar-xs')}<div class="row-info"><div class="row-name">${u.name}</div><div class="row-meta">${u.role}${u.unit?' · '+u.unit:''}</div></div><span data-uid="${u.id}" class="${u.status==='online'?'dot-online dot-pulse':'dot-offline'}"></span><a href="/chat?to=${u.id}" class="btn btn-ghost btn-sm" style="font-size:0.74rem">Chat</a></div>`).join('')}`;
+    }catch(e){}
+  }
+}
+async function resolveA(id){try{await api(`/api/sos/${id}/resolve`,{method:'PATCH'});loadRightPanel();}catch(e){toast('Error',e.message,'danger');}}
+
+async function loadUnitStatus(){
+  try{
+    const users=await api('/api/users');const el=document.getElementById('unit-st');if(!el)return;
+    const list=users.filter(u=>u.role==='soldier'||u.role==='commander').slice(0,5);
+    const sv0=document.getElementById('sv0');if(sv0&&(user.role==='commander'||user.role==='admin'))sv0.textContent=users.filter(u=>u.status==='online').length;
+    el.innerHTML=list.map(u=>`<div class="row-item">${renderAvatarHTML(u.avatar, u.role, 'avatar-xs')}<div class="row-info"><div class="row-name" style="font-size:0.82rem">${u.name}</div><div class="row-meta">${u.unit||u.role}</div></div><span data-uid="${u.id}" class="${u.status==='online'?'dot-online dot-pulse':'dot-offline'}"></span></div>`).join('')||'<div class="empty-state" style="padding:16px"><div class="empty-text">No contacts</div></div>';
+  }catch(e){}
+}
+
+function renderSysMini(){
+  const el=document.getElementById('sys-mini');if(!el)return;
+  const q=JSON.parse(localStorage.getItem('smcs_offline_queue')||'[]');
+  el.innerHTML=[['Network',navigator.onLine?'<i data-lucide="zap" style="color:#4ade80;width:14px;height:14px"></i> Online':'<i data-lucide="zap-off" style="color:var(--muted);width:14px;height:14px"></i> Offline'],['Encryption','AES-256 <i data-lucide="shield-check" style="width:14px;height:14px;color:var(--success)"></i>'],['Offline Queue',q.length+' queued'],['Session','JWT Active']].map(([k,v])=>`<div class="sys-row"><span style="color:var(--muted)">${k}</span><span style="font-weight:600;font-size:0.82rem;display:flex;align-items:center;gap:5px">${v}</span></div>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function renderQA(){
+  const el=document.getElementById('qa');if(!el)return;
+  const acts=[{l:'Send a Message',h:'/chat',i:'message-square'},{l:'View Missions',h:'/missions',i:'target',hide:user.role==='family'},{l:'Create Mission',h:'/missions',i:'plus',hide:user.role!=='commander'&&user.role!=='admin'},{l:'All Users',h:'/users',i:'users',hide:user.role==='soldier'||user.role==='commander'},{l:'My Profile',h:'/profile',i:'user'},{l:'Settings',h:'/settings',i:'settings'}].filter(a=>!a.hide);
+  el.innerHTML=acts.map(a=>`<a href="${a.h}" class="qa-link"><i data-lucide="${a.i}" class="icon-inline"></i> ${a.l}</a>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function loadFamView(){
+  const el=document.getElementById('fam-view');
+  el.innerHTML=`<div class="fam-portal"><div style="color:var(--white);margin-bottom:12px"><i data-lucide="heart" style="width:44px;height:44px"></i></div><h2>Family Communication Portal</h2><p>Your secure, encrypted channel to stay connected with your soldier. Messages are delivered even in low-connectivity areas.</p><a href="/chat" style="display:inline-flex;align-items:center;gap:8px;padding:12px 30px;background:rgba(255,255,255,0.18);border:2px solid rgba(255,255,255,0.3);border-radius:9px;color:#fff;font-weight:700;font-size:0.94rem"><i data-lucide="message-square"></i> Open Messages</a></div><div class="grid-2"><div class="card"><div class="card-header"><span class="card-title"><i data-lucide="users" class="icon-inline"></i> Your Contacts</span></div><div class="card-body" id="fam-contacts"></div></div><div class="card"><div class="card-header"><span class="card-title"><i data-lucide="shield" class="icon-inline"></i> Privacy</span></div><div class="card-body"><div style="display:flex;flex-direction:column;gap:10px">${['All messages use AES-256 encryption','Missions and operations are not visible to you','Offline messages queue and auto-deliver','Your conversations are completely private'].map(t=>`<div style="display:flex;gap:10px;font-size:0.85rem;color:var(--text)"><span style="color:var(--success)"><i data-lucide="check-circle" style="width:14px;height:14px"></i></span>${t}</div>`).join('')}</div></div></div></div>`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  try{
+    const users=await api('/api/users');
+    document.getElementById('fam-contacts').innerHTML=users.map(u=>`<div class="row-item">${renderAvatarHTML(u.avatar, u.role, 'avatar-sm')}<div class="row-info"><div class="row-name">${u.name}</div><div class="row-meta">${u.role}${u.unit?' · '+u.unit:''}</div></div><span data-uid="${u.id}" class="${u.status==='online'?'dot-online dot-pulse':'dot-offline'}"></span><a href="/chat?to=${u.id}" class="btn btn-primary btn-sm">Message</a></div>`).join('');
+    document.getElementById('w-stats').innerHTML=`<div class="w-stat"><div class="w-stat-v">${users.length}</div><div class="w-stat-l">Contacts</div></div><div class="w-stat"><div class="w-stat-v">${users.filter(u=>u.status==='online').length}</div><div class="w-stat-l">Online</div></div>`;
+  }catch(e){}
+}
+init();
+</script>
+</body>
+</html>
+

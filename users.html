@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Users</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<style>
+.search-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+.si-wrap{position:relative;flex:1;min-width:200px;}
+.si{width:100%;padding:9px 14px 9px 36px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:0.87rem;outline:none;background:var(--surface);color:var(--text);}
+.si:focus{border-color:var(--green-500);}
+.si-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:0.85rem;}
+.rfs{display:flex;gap:6px;flex-wrap:wrap;}
+.rf{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:0.78rem;font-weight:600;color:var(--muted);font-family:inherit;transition:all 0.15s;}
+.rf.on{background:var(--green-800);color:#fff;border-color:var(--green-800);}
+[data-theme="dark"] .rf.on{background:var(--green-600);border-color:var(--green-600);}
+.ug{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.uc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;text-align:center;transition:box-shadow 0.2s;}
+.uc:hover{box-shadow:var(--shadow);}
+.uc-av{margin:0 auto 14px;}
+.uc-name{font-weight:700;font-size:0.92rem;color:var(--text);margin-bottom:4px;}
+.uc-role{font-size:0.76rem;color:var(--muted);margin-bottom:12px;}
+.uc-status{display:flex;align-items:center;justify-content:center;gap:5px;font-size:0.74rem;color:var(--muted);margin-bottom:14px;}
+.uc-actions{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;}
+@media(max-width:900px){.ug{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.ug{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="sidebar" id="sidebar"></div>
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="page-body">
+    <div class="search-bar">
+      <div class="si-wrap"><span class="si-icon"><i data-lucide="search" style="width:16px;height:16px"></i></span><input class="si" placeholder="Search by name, unit..." oninput="doSearch(this.value)"/></div>
+      <div class="rfs">
+        <button class="rf on" onclick="setRole('all',this)">All</button>
+        <button class="rf" id="rf-s" onclick="setRole('soldier',this)">Soldiers</button>
+        <button class="rf" id="rf-c" onclick="setRole('commander',this)">Commanders</button>
+        <button class="rf" id="rf-f" onclick="setRole('family',this)">Family</button>
+        <button class="rf" id="rf-a" onclick="setRole('admin',this)">Admin</button>
+      </div>
+    </div>
+    <div id="count" style="font-size:0.8rem;color:var(--muted);margin-bottom:14px"></div>
+    <div class="ug" id="ug"></div>
+  </div>
+</div>
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Edit User Role</div><button class="modal-close" onclick="closeEdit()">✕</button></div>
+    <div class="modal-body">
+      <div class="alert alert-danger" id="edit-err"><span id="edit-err-msg"></span></div>
+      <p id="edit-uname" style="font-weight:600;color:var(--text);margin-bottom:16px"></p>
+      <div class="form-group"><label class="form-label">Role</label><select class="form-control" id="edit-role"><option value="soldier">Soldier</option><option value="commander">Commander</option><option value="family">Family</option><option value="admin">Admin</option></select></div>
+      <div class="form-group"><label class="form-label">Unit</label><input class="form-control" id="edit-unit" placeholder="e.g. Alpha Squad"/></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeEdit()">Cancel</button><button class="btn btn-primary" onclick="saveEdit()">Save</button></div>
+  </div>
+</div>
+<div class="net-banner"></div>
+<button class="helpbot-fab" id="hb-fab"><i data-lucide="bot"></i></button>
+<div class="helpbot-panel" id="hb-panel">
+  <div class="helpbot-head"><div class="helpbot-avatar"><i data-lucide="bot" style="width:20px;height:20px"></i></div><div><h4>SMCS Assistant</h4><p>Ask me anything</p></div></div>
+  <div class="helpbot-msgs" id="hb-msgs"><div class="bot-msg">Ask me about roles, contacting users, or the family portal.</div></div>
+  <div class="helpbot-chips"><div class="hchip">Roles</div><div class="hchip">Family</div><div class="hchip">Messages</div></div>
+  <div class="helpbot-input-row"><input class="helpbot-input" id="hb-input" placeholder="Ask anything..."/><button class="helpbot-send" id="hb-send">Send</button></div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+let user,all=[],roleF='all',query='';
+const AVC={soldier:'av-green',commander:'av-gold',family:'av-blue',admin:'av-purple'};
+async function init(){
+  user=await requireAuth();if(!user)return;
+  renderSidebar(user,'users');
+  renderTopbar(user,'All Users');
+  initSocket(user.id);
+  if(user.role==='family'){['rf-c','rf-f','rf-a'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});}
+  else if(user.role!=='admin'){const el=document.getElementById('rf-a');if(el)el.style.display='none';}
+  load();
+  document.addEventListener('smcs:status',e=>{const u=all.find(x=>x.id===e.detail.userId);if(u){u.status=e.detail.status;render();}});
+}
+async function load(){try{all=await api('/api/users');render();}catch{}}
+function doSearch(q){query=q.toLowerCase();render();}
+function setRole(r,btn){roleF=r;document.querySelectorAll('.rf').forEach(b=>b.classList.remove('on'));btn.classList.add('on');render();}
+function render(){
+  const list=all.filter(u=>{
+    const mq=!query||(u.name.toLowerCase().includes(query)||(u.unit||'').toLowerCase().includes(query));
+    const mr=roleF==='all'||u.role===roleF;return mq&&mr;
+  });
+  document.getElementById('count').textContent=`${list.length} user${list.length!==1?'s':''} found`;
+  const el=document.getElementById('ug');
+  if(!list.length){el.innerHTML='<div class="empty-state" style="grid-column:span 3"><div class="empty-icon"><i data-lucide="users"></i></div><div class="empty-text">No users found</div></div>';if (typeof lucide !== 'undefined') lucide.createIcons();return;}
+  el.innerHTML=list.map(u=>`
+    <div class="uc fade-up">
+      ${renderAvatarHTML(u.avatar, u.role, 'avatar-md uc-av')}
+      <div class="uc-name">${u.name}</div>
+      <div class="uc-role"><span class="badge badge-${u.role}">${u.role}</span>${u.unit?` <span style="font-size:0.73rem;color:var(--muted)">${u.unit}</span>`:''}</div>
+      <div class="uc-status"><span class="${u.status==='online'?'dot-online dot-pulse':'dot-offline'}" data-uid="${u.id}"></span><span>${u.status==='online'?'Online':'Offline'}</span></div>
+      <div class="uc-actions">
+        <a href="/chat?to=${u.id}" class="btn btn-primary btn-sm"><i data-lucide="message-square" style="width:14px;height:14px;margin-right:4px"></i> Message</a>
+        ${user?.role==='admin'?`<button class="btn btn-secondary btn-sm" onclick="openEdit('${u.id}','${u.name.replace(/'/g,"\\'")}','${u.role}','${(u.unit||'').replace(/'/g,"\\'")}')"><i data-lucide="edit-2" style="width:14px;height:14px;margin-right:4px"></i> Edit</button>`:''}
+      </div>
+    </div>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+let editId='';
+function openEdit(id,name,role,unit){editId=id;document.getElementById('edit-uname').textContent='Editing: '+name;document.getElementById('edit-role').value=role;document.getElementById('edit-unit').value=unit;document.getElementById('edit-err').classList.remove('show');document.getElementById('edit-modal').classList.add('open');}
+function closeEdit(){document.getElementById('edit-modal').classList.remove('open');}
+async function saveEdit(){
+  try{await api(`/api/users/${editId}/role`,{method:'PATCH',body:JSON.stringify({role:document.getElementById('edit-role').value,unit:document.getElementById('edit-unit').value})});closeEdit();load();toast('✅ User updated','','success');}
+  catch(e){document.getElementById('edit-err-msg').textContent=e.message;document.getElementById('edit-err').classList.add('show');}
+}
+init();
+</script>
+</body>
+</html>
+

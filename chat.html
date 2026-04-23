@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Messages</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<style>
+.chat-wrap{display:flex;height:calc(100vh - var(--topbar-h));overflow:hidden;}
+.contacts-col{width:280px;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);flex-shrink:0;}
+.c-search-wrap{padding:13px 14px;border-bottom:1px solid var(--border);}
+.c-search{width:100%;padding:8px 13px 8px 34px;border:1.5px solid var(--border);border-radius:8px;font-size:0.83rem;outline:none;background:var(--surface2);font-family:inherit;color:var(--text);}
+.c-search:focus{border-color:var(--green-500);background:var(--surface);}
+.c-search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.82rem;pointer-events:none;}
+.contacts-scroll{flex:1;overflow-y:auto;}
+.contact-row{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;transition:background 0.14s;border-bottom:1px solid rgba(0,0,0,0.04);}
+.contact-row:hover{background:var(--surface2);}
+.contact-row.active{background:rgba(61,107,61,0.08);border-left:3px solid var(--green-600);}
+[data-theme="dark"] .contact-row.active{background:rgba(74,124,74,0.14);}
+.c-name{font-weight:600;font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.c-preview{font-size:0.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.chat-col{flex:1;display:flex;flex-direction:column;min-width:0;}
+.chat-header{padding:13px 20px;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:12px;}
+.chat-partner-name{font-weight:700;font-size:0.94rem;color:var(--text);}
+.chat-partner-meta{font-size:0.74rem;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:8px;}
+.typing-hint{font-size:0.74rem;color:var(--green-600);font-style:italic;display:none;margin-left:4px;}
+.msgs-area{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:11px;background:var(--bg);}
+[data-theme="dark"] .msgs-area{background:var(--bg2);}
+.msg-wrap{display:flex;flex-direction:column;max-width:64%;}
+.msg-wrap.mine{align-self:flex-end;align-items:flex-end;}
+.msg-wrap.theirs{align-self:flex-start;align-items:flex-start;}
+.bubble{padding:10px 15px;border-radius:14px;font-size:0.89rem;line-height:1.55;word-break:break-word;}
+.mine .bubble{background:var(--green-700);color:#fff;border-radius:14px 14px 4px 14px;}
+.theirs .bubble{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:14px 14px 14px 4px;}
+.mine .bubble.queued{background:var(--gold);color:var(--green-900);}
+.msg-meta{font-size:0.67rem;color:var(--muted);margin-top:3px;}
+.date-sep{text-align:center;margin:6px 0;}
+.date-sep span{background:var(--surface2);color:var(--muted);font-size:0.71rem;padding:3px 12px;border-radius:20px;border:1px solid var(--border);}
+.q-tag{font-size:0.66rem;background:rgba(200,168,75,0.15);color:var(--gold);padding:1px 8px;border-radius:10px;margin-left:5px;}
+.input-bar{padding:12px 18px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:9px;align-items:flex-end;}
+.msg-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:0.89rem;font-family:inherit;resize:none;max-height:100px;outline:none;background:var(--surface);color:var(--text);transition:border-color 0.2s;}
+.msg-input:focus{border-color:var(--green-500);}
+.send-btn{padding:10px 20px;background:var(--green-700);color:#fff;border:none;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;transition:background 0.2s;font-size:0.87rem;white-space:nowrap;}
+.send-btn:hover{background:var(--green-600);}
+.no-chat{flex:1;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+[data-theme="dark"] .no-chat{background:var(--bg2);}
+.no-chat-inner{text-align:center;}
+.no-chat-inner .ico{font-size:3rem;opacity:0.2;margin-bottom:12px;}
+</style>
+</head>
+<body>
+<div class="sidebar" id="sidebar"></div>
+<div class="main" style="display:flex;flex-direction:column">
+  <div class="topbar" id="topbar"></div>
+  <div class="chat-wrap">
+    <div class="contacts-col">
+      <div class="c-search-wrap">
+        <div style="position:relative"><span class="c-search-icon"><i data-lucide="search" style="width:14px;height:14px"></i></span><input class="c-search" placeholder="Search contacts..." oninput="filterContacts(this.value)"/></div>
+      </div>
+      <div class="contacts-scroll" id="contacts-list"></div>
+    </div>
+    <div class="chat-col" id="chat-col">
+      <div class="no-chat"><div class="no-chat-inner"><div class="ico"><i data-lucide="message-square" style="width:48px;height:48px"></i></div><p style="color:var(--muted);font-size:0.9rem">Select a contact to start messaging</p></div></div>
+    </div>
+  </div>
+</div>
+<div class="net-banner"></div>
+<button class="helpbot-fab" id="hb-fab"><i data-lucide="bot"></i></button>
+<div class="helpbot-panel" id="hb-panel">
+  <div class="helpbot-head"><div class="helpbot-avatar"><i data-lucide="bot"></i></div><div><h4>SMCS Assistant</h4><p>Ask me anything</p></div></div>
+  <div class="helpbot-msgs" id="hb-msgs"><div class="bot-msg">Ask me about sending messages, offline mode, encryption, or anything else.</div></div>
+  <div class="helpbot-chips"><div class="hchip">Offline mode</div><div class="hchip">Encryption</div><div class="hchip">SOS</div></div>
+  <div class="helpbot-input-row"><input class="helpbot-input" id="hb-input" placeholder="Ask anything..."/><button class="helpbot-send" id="hb-send"><i data-lucide="send" style="width:16px;height:16px"></i></button></div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+let user,contacts=[],partner=null,msgs=[],typTimer;
+const AVC={soldier:'av-green',commander:'av-gold',family:'av-blue',admin:'av-purple'};
+
+async function init(){
+  user=await requireAuth();if(!user)return;
+  renderSidebar(user,'chat');
+  renderTopbar(user,'Messages');
+  initSocket(user.id);
+  await loadContacts();
+  const p=new URLSearchParams(window.location.search).get('to');
+  if(p) setTimeout(()=>openChat(p),300);
+  setupNetworkRefresh();
+  document.addEventListener('smcs:message',e=>{
+    const m=e.detail;
+    if(partner&&(m.from===partner.id||m.to===partner.id)){msgs.push(m);renderMsgs();}
+    loadContacts();
+  });
+  document.addEventListener('smcs:typing',e=>{
+    if(partner){const h=document.getElementById('typing-hint');if(h){h.textContent=`${e.detail.fromName} is typing...`;h.style.display='inline';clearTimeout(typTimer);typTimer=setTimeout(()=>h.style.display='none',2000);}}
+  });
+  document.addEventListener('smcs:stoptyping',()=>{const h=document.getElementById('typing-hint');if(h)h.style.display='none';});
+  document.addEventListener('smcs:status',()=>loadContacts());
+}
+
+function setupNetworkRefresh(){
+  window.addEventListener('online',()=>{flushQueue().then(()=>{if(partner)loadMsgs(partner.id);});});
+}
+
+async function loadContacts(){
+  try{contacts=await api('/api/users');renderContacts(contacts);}catch{}
+}
+
+function renderContacts(list){
+  const el=document.getElementById('contacts-list');
+  if(!list.length){el.innerHTML='<div class="empty-state"><div class="empty-text">No contacts available</div></div>';return;}
+  el.innerHTML=list.map(c=>`
+    <div class="contact-row ${partner?.id===c.id?'active':''}" onclick="openChat('${c.id}')">
+      ${renderAvatarHTML(c.avatar, c.role, 'avatar-sm')}
+      <div style="flex:1;min-width:0">
+        <div class="c-name">${c.name}</div>
+        <div class="c-preview"><span class="badge badge-${c.role}" style="font-size:0.64rem">${c.role}</span></div>
+      </div>
+      <span data-uid="${c.id}" class="${c.status==='online'?'dot-online dot-pulse':'dot-offline'}"></span>
+    </div>`).join('');
+}
+
+function filterContacts(q){renderContacts(contacts.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())||c.role.includes(q.toLowerCase())));}
+
+async function openChat(id){
+  partner=contacts.find(c=>c.id===id)||{id};
+  if(!partner.name){try{partner=await api(`/api/users/${id}`);}catch{}}
+  document.querySelectorAll('.contact-row').forEach(r=>r.classList.remove('active'));
+  document.querySelector(`[onclick="openChat('${id}')"]`)?.classList.add('active');
+  renderChatUI();
+  await loadMsgs(id);
+}
+
+
+function renderChatUI(){
+  const c=partner;
+  document.getElementById('chat-col').innerHTML=`
+    <div class="chat-header">
+      ${renderAvatarHTML(c.avatar || (c.name?.[0]||'?'), c.role, 'avatar-sm')}
+      <div style="flex:1">
+        <div class="chat-partner-name">${c.name||'User'}</div>
+        <div class="chat-partner-meta">
+          <span data-uid="${c.id}" class="${c.status==='online'?'dot-online dot-pulse':'dot-offline'}"></span>
+          <span>${c.status==='online'?'Online':'Offline'}</span>
+          <span class="badge badge-${c.role}" style="font-size:0.66rem">${c.role||''}</span>
+          ${c.unit?`<span style="font-size:0.74rem;color:var(--muted)">${c.unit}</span>`:''}
+          <span class="typing-hint" id="typing-hint"></span>
+        </div>
+      </div>
+      <div style="font-size:0.76rem;color:var(--green-400);display:flex;align-items:center;gap:6px"><i data-lucide="lock" style="width:14px;height:14px"></i> Encrypted</div>
+    </div>
+    <div class="msgs-area" id="msgs-area"></div>
+    <div class="input-bar">
+      <textarea class="msg-input" id="msg-input" placeholder="Type a message... (offline messages are queued automatically)" rows="1" oninput="autoH(this);emitTyp()" onkeydown="hKey(event)"></textarea>
+      <button class="send-btn" onclick="doSend()"><i data-lucide="send" style="width:18px;height:18px"></i></button>
+    </div>`;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+
+async function loadMsgs(id){try{msgs=await api(`/api/messages/${id}`);renderMsgs();}catch{}}
+
+function renderMsgs(){
+  const el=document.getElementById('msgs-area');if(!el)return;
+  if(!msgs.length){el.innerHTML='<div class="empty-state"><div class="empty-icon"><i data-lucide="message-square"></i></div><div class="empty-text">No messages yet. Say hello!</div></div>'; if(typeof lucide !== 'undefined') lucide.createIcons(); return;}
+  let last='';
+  el.innerHTML=msgs.map(m=>{
+    const mine=m.from===user.id;
+    const d=new Date(m.timestamp);const ds=d.toLocaleDateString();
+    const sep=ds!==last?`<div class="date-sep"><span>${ds}</span></div>`:'';last=ds;
+    return `${sep}<div class="msg-wrap ${mine?'mine':'theirs'}">
+      ${!mine?`<div style="font-size:0.71rem;color:var(--muted);margin-bottom:2px">${partner?.name?.split(' ')[0]||''}</div>`:''}
+      <div class="bubble ${m.queued?'queued':''}">${m.text}${m.queued?'<span class="q-tag"><i data-lucide="archive" style="width:10px;height:10px;display:inline-block;vertical-align:middle"></i> queued</span>':''}</div>
+      <div class="msg-meta">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}${mine?' · '+(m.read?'✓✓':'✓'):''}</div>
+    </div>`;
+  }).join('');
+  el.scrollTop=el.scrollHeight;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function autoH(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function hKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();}}
+let tt;
+function emitTyp(){if(socket&&partner){socket.emit('typing',{to:partner.id,fromName:user.name});clearTimeout(tt);tt=setTimeout(()=>socket.emit('stop_typing',{to:partner.id}),1500);}}
+
+async function doSend(){
+  const inp=document.getElementById('msg-input');const text=inp?.value.trim();
+  if(!text||!partner)return;
+  inp.value='';inp.style.height='auto';
+  const msg=await queueOrSend(partner.id,text);
+  const full={...msg,from:user.id,to:partner.id};
+  msgs.push(full);renderMsgs();
+  if(socket&&!msg.queued) socket.emit('send_message',{...full,fromName:user.name});
+}
+init();
+</script>
+</body>
+</html>
+

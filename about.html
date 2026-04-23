@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — About Us</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/main.css"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{--g9:#1a2e1a;--g8:#243324;--g7:#2e4a2e;--g6:#3d6b3d;--g5:#4a7c4a;--g3:#7aaa7a;--g1:#d4e8d4;--g0:#eef6ee;--gold:#c8a84b;--white:#fff;--off:#f8faf8;--gray:#5a6a5a;--bdr:rgba(61,107,61,0.15);}
+[data-theme="dark"]{--off:#111a11;--white:#1e2d1e;--gray:#8aaa8a;--bdr:rgba(122,170,122,0.12);}
+*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'DM Sans',sans-serif;background:var(--off);color:#2a3a2a;}
+[data-theme="dark"] body{color:#e8f4e8;}a{text-decoration:none;color:inherit;}
+nav{background:var(--g8);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.nl{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:0.05em;}
+.nl .g{color:var(--gold);}
+.nright{display:flex;gap:10px;}
+.nbtn{padding:8px 18px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-size:0.83rem;font-weight:600;transition:all 0.2s;}
+.nbtn:hover{background:rgba(255,255,255,0.18);color:#fff;}
+.nbtn.g{background:var(--gold);color:var(--g9);border-color:var(--gold);}
+.nbtn.g:hover{filter:brightness(1.08);}
+.hero{background:linear-gradient(135deg,var(--g9),var(--g8));padding:80px 40px;text-align:center;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:700;color:#fff;margin-bottom:14px;}
+.hero h1 span{color:var(--gold);}
+.hero p{color:rgba(255,255,255,0.58);font-size:1rem;max-width:560px;margin:0 auto;line-height:1.78;}
+.content{max-width:960px;margin:0 auto;padding:60px 40px;}
+.section-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--g8);margin-bottom:6px;}
+[data-theme="dark"] .section-title{color:var(--g3);}
+.section-sub{font-size:0.88rem;color:var(--gray);margin-bottom:40px;}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:60px;}
+.tm{background:var(--white);border:1px solid var(--bdr);border-radius:14px;padding:28px 20px;text-align:center;transition:transform 0.2s,box-shadow 0.2s;}
+.tm:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(26,46,26,0.1);}
+.tm-av{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin:0 auto 16px;border:3px solid var(--g1);}
+.tm-av.green{background:var(--g6);color:#fff;}
+.tm-av.gold{background:var(--gold);color:var(--g9);}
+.tm-name{font-weight:700;font-size:0.94rem;color:#2a3a2a;margin-bottom:4px;}
+[data-theme="dark"] .tm-name{color:var(--g3);}
+.tm-role{font-size:0.78rem;color:var(--g6);font-weight:600;margin-bottom:8px;}
+.tm-bio{font-size:0.8rem;color:var(--gray);line-height:1.6;}
+.mission-box{background:var(--g8);border-radius:14px;padding:36px;color:#fff;margin-bottom:50px;}
+[data-theme="dark"] .mission-box{background:var(--g9);}
+.mission-box h3{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:14px;}
+.mission-box p{color:rgba(255,255,255,0.62);font-size:0.9rem;line-height:1.8;}
+.tech-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;}
+.tech-pill{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);padding:6px 16px;border-radius:20px;font-size:0.8rem;font-weight:600;}
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:60px;}
+.val{background:var(--white);border:1px solid var(--bdr);border-radius:12px;padding:22px 18px;text-align:center;}
+.val-icon{font-size:2rem;margin-bottom:10px;}
+.val-title{font-weight:700;font-size:0.9rem;color:var(--g8);margin-bottom:6px;}
+[data-theme="dark"] .val-title{color:var(--g3);}
+.val-text{font-size:0.8rem;color:var(--gray);line-height:1.6;}
+.v-ico.sec{color:var(--g7);}[data-theme="dark"] .v-ico.sec{color:var(--g3);}
+.v-ico.love{color:#ef4444;}
+.v-ico.tech{color:var(--gold);}
+footer{background:var(--g9);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.theme-fab{position:fixed;bottom:22px;right:22px;width:44px;height:44px;border-radius:50%;background:var(--g8);color:#fff;border:none;font-size:1rem;cursor:pointer;box-shadow:0 4px 16px rgba(26,46,26,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;z-index:200;}
+.theme-fab:hover{background:var(--g6);}
+@media(max-width:768px){.team-grid,.vals{grid-template-columns:1fr 1fr;}.content{padding:40px 22px;}.hero{padding:60px 22px;}}
+@media(max-width:480px){.team-grid,.vals{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nl">SM<span class="g">CS</span></div>
+  <div class="nright"><a href="/" class="nbtn">Home</a><a href="/login" class="nbtn">Sign In</a><a href="/register" class="nbtn g">Get Access</a></div>
+</nav>
+
+<div class="hero">
+  <h1>About <span>SMCS</span></h1>
+  <p>We built SMCS to solve one of the most overlooked challenges in military operations — the human cost of disconnection from family and the security risks of unsecured communications.</p>
+</div>
+
+<div class="content">
+
+  <!-- Mission -->
+  <div class="mission-box">
+    <h3>Our Mission</h3>
+    <p>SMCS is a purpose-built secure communication platform designed around the realities of military deployment. We combine iron-clad security with resilience under the worst network conditions — ensuring no soldier is ever truly unreachable, and no message is ever lost.</p>
+    <div class="tech-row">
+      <span class="tech-pill">Node.js Backend</span>
+      <span class="tech-pill">Socket.IO Real-time</span>
+      <span class="tech-pill">AES-256 / RSA-2048</span>
+      <span class="tech-pill">Offline Message Queue</span>
+      <span class="tech-pill">JWT Authentication</span>
+      <span class="tech-pill">Dark / Light Mode</span>
+    </div>
+  </div>
+
+  <!-- Values -->
+  <div class="section-title">Our Core Values</div>
+  <p class="section-sub">The principles that guide every decision we make</p>
+  <div class="vals">
+    <div class="val"><div class="val-icon"><i data-lucide="shield-check" style="width:36px;height:36px" class="v-ico sec"></i></div><div class="val-title">Security First</div><div class="val-text">Every feature is built with security as the first consideration — not an afterthought.</div></div>
+    <div class="val"><div class="val-icon"><i data-lucide="heart" style="width:36px;height:36px" class="v-ico love"></i></div><div class="val-title">Human Connection</div><div class="val-text">We believe every soldier deserves to stay connected with the people who matter most.</div></div>
+    <div class="val"><div class="val-icon"><i data-lucide="radio" style="width:36px;height:36px" class="v-ico tech"></i></div><div class="val-title">Resilience</div><div class="val-text">Built to work even when networks don't. No message is ever lost — ever.</div></div>
+  </div>
+
+  <!-- Team -->
+  <div class="section-title">Meet the Developers</div>
+  <p class="section-sub">The talented team behind SMCS</p>
+  <div class="team-grid">
+    <div class="tm">
+      <div class="tm-av gold">H</div>
+      <div class="tm-name">Hundwa Maria Mater Dei</div>
+      <div class="tm-role">Project Leader</div>
+      <div class="tm-bio">Oversaw the full project lifecycle, coordinated team efforts, and ensured the system met all requirements.</div>
+    </div>
+    <div class="tm">
+      <div class="tm-av green">Z</div>
+      <div class="tm-name">Zainab Elmukashfi</div>
+      <div class="tm-role">Systems Analyst</div>
+      <div class="tm-bio">Analyzed system requirements, designed use cases, and mapped user journeys across all four roles.</div>
+    </div>
+    <div class="tm">
+      <div class="tm-av green">R</div>
+      <div class="tm-name">Rushago Ndayambaje Stacey</div>
+      <div class="tm-role">Backend Developer</div>
+      <div class="tm-bio">Built the Node.js backend, REST API, Socket.IO integration, and offline message queue system.</div>
+    </div>
+    <div class="tm">
+      <div class="tm-av gold">W</div>
+      <div class="tm-name">Rwigamba Ineza Wilson</div>
+      <div class="tm-role">Security Engineer</div>
+      <div class="tm-bio">Implemented AES/RSA encryption, JWT authentication, role-based access control, and password security.</div>
+    </div>
+    <div class="tm">
+      <div class="tm-av green">I</div>
+      <div class="tm-name">Ineza Mbonigaba Christein</div>
+      <div class="tm-role">UI/UX Designer</div>
+      <div class="tm-bio">Designed the complete interface — army green theme, dark mode, responsive layouts, and the helpbot assistant.</div>
+    </div>
+    <div class="tm" style="background:var(--g0);border-style:dashed;">
+      <div class="tm-av" style="background:var(--bdr);color:var(--gray);border-color:var(--bdr);font-size:1.8rem"><i data-lucide="medal" style="width:32px;height:32px"></i></div>
+      <div class="tm-name" style="color:var(--gray)">SMCS v1.0.0</div>
+      <div class="tm-role">Group Project · 2024</div>
+      <div class="tm-bio">Built with passion for those who serve. Secure communications for every soldier, family, and commander.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#fff">SM<span style="color:var(--gold)">CS</span></div>
+  <p style="color:rgba(255,255,255,0.28);font-size:0.79rem">Secure Military Communication System · Group Project 2024</p>
+  <div style="display:flex;gap:10px"><a href="/" style="font-size:0.79rem;color:rgba(255,255,255,0.4)">Home</a><a href="/login" style="font-size:0.79rem;color:rgba(255,255,255,0.4)">Login</a></div>
+</footer>
+
+<button class="theme-fab" id="tfab" onclick="toggleTheme()"><i data-lucide="moon"></i></button>
+<script>
+lucide.createIcons();
+function initTheme(){const s=localStorage.getItem('smcs_theme')||'light';document.documentElement.setAttribute('data-theme',s);updateFab(s);}
+function updateFab(t){document.getElementById('tfab').innerHTML=t==='dark'?'<i data-lucide="sun"></i>':'<i data-lucide="moon"></i>';if(typeof lucide!=='undefined')lucide.createIcons();}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('smcs_theme',n);updateFab(n);}
+initTheme();
+</script>
+</body>
+</html>
+

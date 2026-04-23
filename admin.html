@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Command Center</title>
+<link rel="stylesheet" href="/css/main.css"/>
+</head>
+<body>
+<div class="sidebar" id="sidebar"></div>
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="page-body">
+    <div class="stats-grid g4 mb-6" id="stats"></div>
+    <div class="grid-2 mb-6">
+      <div class="card">
+        <div class="card-header"><span class="card-title">👥 All Users</span></div>
+        <div class="card-body" style="padding:0"><div class="table-wrap"><table><thead><tr><th>User</th><th>Role</th><th>Unit</th><th>Status</th><th>Actions</th></tr></thead><tbody id="utb"></tbody></table></div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i data-lucide="settings"></i> System Status</span></div>
+        <div class="card-body" id="sys"></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i data-lucide="target"></i> Missions</span><a href="/missions" style="font-size:0.79rem;color:var(--green-600)">Manage →</a></div>
+        <div class="card-body" id="m-ov"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i data-lucide="alert-triangle"></i> SOS Alerts</span></div>
+        <div class="card-body" id="sos-ov"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="edit-m">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Edit User</div><button class="modal-close" onclick="closeEdit()">✕</button></div>
+    <div class="modal-body">
+      <div class="alert alert-danger" id="ee"><span id="ee-msg"></span></div>
+      <p id="en" style="font-weight:600;color:var(--text);margin-bottom:16px"></p>
+      <div class="form-group"><label class="form-label">Role</label><select class="form-control" id="er"><option value="soldier">Soldier</option><option value="commander">Commander</option><option value="family">Family</option><option value="admin">Admin</option></select></div>
+      <div class="form-group"><label class="form-label">Unit</label><input class="form-control" id="eu"/></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeEdit()">Cancel</button><button class="btn btn-primary" onclick="saveEdit()">Save</button></div>
+  </div>
+</div>
+<div class="net-banner"></div>
+<button class="helpbot-fab" id="hb-fab"><i data-lucide="bot"></i></button>
+<div class="helpbot-panel" id="hb-panel">
+  <div class="helpbot-head"><div class="helpbot-avatar"><i data-lucide="bot" style="width:20px;height:20px"></i></div><div><h4>SMCS Assistant</h4><p>Admin support</p></div></div>
+  <div class="helpbot-msgs" id="hb-msgs"><div class="bot-msg">Hello Admin! Ask me about user roles, system status, or encryption.</div></div>
+  <div class="helpbot-chips"><div class="hchip">Roles</div><div class="hchip">Encryption</div><div class="hchip">Offline</div></div>
+  <div class="helpbot-input-row"><input class="helpbot-input" id="hb-input" placeholder="Ask anything..."/><button class="helpbot-send" id="hb-send">Send</button></div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+let user,editId='';
+const AVC={soldier:'av-green',commander:'av-gold',family:'av-blue',admin:'av-purple'};
+async function init(){
+  user=await requireAuth(['admin']);if(!user)return;
+  renderSidebar(user,'admin');
+  renderTopbar(user,'Command Center');
+  initSocket(user.id);
+  loadAll();
+}
+async function loadAll(){
+  try{
+    const [users,missions,sos]= await Promise.all([api('/api/users'),api('/api/missions'),api('/api/sos')]);
+    const active=sos.filter(s=>!s.resolved).length;
+    document.getElementById('stats').innerHTML=[
+      {i:'users',l:'Total Users',v:users.length,c:'g'},{i:'target',l:'Missions',v:missions.length,c:'gold'},
+      {i:'alert-triangle',l:'Active SOS',v:active,c:'r'},{i:'radio',l:'System',v:'Online',c:'g'},
+    ].map((s,i)=>`<div class="stat-card fade-up" style="animation-delay:${i*0.07}s"><div class="stat-icon ${s.c}"><i data-lucide="${s.i}"></i></div><div><div class="stat-val">${s.v}</div><div class="stat-label">${s.l}</div></div></div>`).join('');
+    renderUsersTable(users);renderSys();renderMissions(missions);renderSOS(sos);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }catch{}
+}
+function renderUsersTable(users){
+  document.getElementById('utb').innerHTML=users.map(u=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:9px">${renderAvatarHTML(u.avatar, u.role, 'avatar-xs')}<div><div style="font-weight:600;font-size:0.85rem">${u.name}</div><div style="font-size:0.73rem;color:var(--muted)">@${u.username}</div></div></div></td>
+    <td><span class="badge badge-${u.role}">${u.role}</span></td>
+    <td style="font-size:0.83rem;color:var(--muted)">${u.unit||'—'}</td>
+    <td><span data-uid="${u.id}" class="${u.status==='online'?'dot-online dot-pulse':'dot-offline'}"></span> <span style="font-size:0.78rem">${u.status||'offline'}</span></td>
+    <td><div style="display:flex;gap:5px">
+      <button class="btn btn-secondary btn-sm" onclick="openEdit('${u.id}','${u.name.replace(/'/g,"\\'")}','${u.role}','${(u.unit||'').replace(/'/g,"\\'")}')"><i data-lucide="edit-2" style="width:14px;height:14px"></i></button>
+      <button class="btn btn-danger btn-sm" onclick="delUser('${u.id}','${u.name.replace(/'/g,"\\'")}')"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+    </div></td></tr>`).join('');
+}
+function renderSys(){
+  const q=JSON.parse(localStorage.getItem('smcs_offline_queue')||'[]');
+  document.getElementById('sys').innerHTML=[
+    ['Server','🟢 Running'],['Encryption','AES-256 / RSA-2048'],['Offline Queue',q.length+' messages'],
+    ['Network',navigator.onLine?'🟢 Online':'🔴 Offline'],['Database','In-Memory (Demo)'],['Socket.IO','🟢 Connected'],['Version','SMCS v1.0.0'],
+  ].map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:0.83rem"><span style="color:var(--muted)">${k}</span><span style="font-weight:600">${v}</span></div>`).join('');
+}
+function renderMissions(ms){
+  document.getElementById('m-ov').innerHTML=[
+    ['Total',ms.length],['Active',ms.filter(m=>m.status==='active').length,'var(--success)'],
+    ['Pending',ms.filter(m=>m.status==='pending').length,'var(--warning)'],['Completed',ms.filter(m=>m.status==='completed').length],
+  ].map(([k,v,c])=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:0.83rem"><span style="color:var(--muted)">${k}</span><span style="font-weight:700;${c?'color:'+c:''}">${v}</span></div>`).join('')
+  + ms.slice(0,3).map(m=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)"><span style="font-size:0.83rem;font-weight:500">${m.title}</span><span class="badge badge-${m.status}">${m.status}</span></div>`).join('');
+}
+function renderSOS(sos){
+  const el=document.getElementById('sos-ov');
+  if(!sos.length){el.innerHTML='<div class="empty-state"><div class="empty-icon"><i data-lucide="check-circle"></i></div><div class="empty-text">No SOS alerts</div></div>';if (typeof lucide !== 'undefined') lucide.createIcons();return;}
+  el.innerHTML=sos.map(s=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-weight:600;font-size:0.84rem;color:${s.resolved?'var(--muted)':'var(--danger)'}">${s.senderName}</div><div style="font-size:0.74rem;color:var(--muted)">📍 <i data-lucide="map-pin" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i> ${s.location} · ${new Date(s.timestamp).toLocaleString()}</div><div style="margin-top:3px">${s.resolved?`<span style="font-size:0.73rem;color:var(--success)"><i data-lucide="check-circle" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i> Resolved</span>`:`<span style="font-size:0.73rem;color:var(--danger)"><i data-lucide="alert-triangle" style="width:12px;height:12px;display:inline-block;vertical-align:middle"></i> Active</span>`}</div></div>`).join('');
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+function openEdit(id,name,role,unit){editId=id;document.getElementById('en').textContent='Editing: '+name;document.getElementById('er').value=role;document.getElementById('eu').value=unit;document.getElementById('ee').classList.remove('show');document.getElementById('edit-m').classList.add('open');}
+function closeEdit(){document.getElementById('edit-m').classList.remove('open');}
+async function saveEdit(){try{await api(`/api/users/${editId}/role`,{method:'PATCH',body:JSON.stringify({role:document.getElementById('er').value,unit:document.getElementById('eu').value})});closeEdit();loadAll();toast('✅ User updated','','success');}catch(e){document.getElementById('ee-msg').textContent=e.message;document.getElementById('ee').classList.add('show');}}
+async function delUser(id,name){if(!confirm(`Delete user: ${name}?`))return;try{await api(`/api/users/${id}`,{method:'DELETE'});loadAll();toast('User deleted','','success');}catch(e){toast('Error',e.message,'danger');}}
+init();
+</script>
+</body>
+</html>
+

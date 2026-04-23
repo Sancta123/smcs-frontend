@@ -1,0 +1,19 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/home", "destination": "/index.html" },
+    { "source": "/landing", "destination": "/index.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/register", "destination": "/register.html" },
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/chat", "destination": "/chat.html" },
+    { "source": "/missions", "destination": "/missions.html" },
+    { "source": "/users", "destination": "/users.html" },
+    { "source": "/profile", "destination": "/profile.html" },
+    { "source": "/settings", "destination": "/settings.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/forgot-password", "destination": "/forgot-password.html" }
+  ]
+}

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Login</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+body{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--bg);}
+.left{background:var(--green-800);display:flex;flex-direction:column;justify-content:center;padding:60px 56px;position:relative;overflow:hidden;}
+[data-theme="dark"] .left{background:var(--green-900);}
+.left::before{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,0.025);}
+.brand{margin-bottom:52px;position:relative;}
+.brand-logo{font-family:var(--font-display);font-size:2rem;font-weight:700;color:#fff;letter-spacing:0.05em;}
+.brand-logo .g{color:var(--gold);}
+.brand-tag{font-size:0.68rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.14em;margin-top:4px;}
+.left h2{font-family:var(--font-display);font-size:2.1rem;color:#fff;line-height:1.25;margin-bottom:18px;position:relative;}
+.left p{color:rgba(255,255,255,0.5);font-size:0.92rem;line-height:1.8;max-width:360px;margin-bottom:44px;position:relative;}
+.feat{display:flex;align-items:center;gap:11px;margin-bottom:15px;position:relative;}
+.feat-bullet{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;}
+.feat span{color:rgba(255,255,255,0.65);font-size:0.86rem;}
+.right{display:flex;align-items:center;justify-content:center;padding:40px 32px;background:var(--bg);}
+.form-box{width:100%;max-width:400px;}
+.form-head{margin-bottom:28px;}
+.form-head h2{font-family:var(--font-display);font-size:1.9rem;color:var(--text);margin-bottom:6px;}
+.form-head p{font-size:0.88rem;color:var(--muted);}
+.tabs{display:flex;border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:24px;}
+.tab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:0.84rem;font-weight:600;color:var(--muted);border:none;background:none;transition:all 0.2s;font-family:inherit;}
+.tab.on{background:var(--green-800);color:#fff;}
+[data-theme="dark"] .tab.on{background:var(--green-600);}
+.forgot-link{display:block;text-align:right;font-size:0.79rem;color:var(--green-600);margin-top:5px;}
+.forgot-link:hover{color:var(--green-500);}
+.sub-btn{width:100%;padding:12px;background:var(--green-800);color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:0.92rem;font-weight:700;cursor:pointer;transition:background 0.2s;margin-top:6px;}
+.sub-btn:hover{background:var(--green-600);}
+.sub-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.demo-box{margin-top:22px;padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);}
+.demo-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;}
+.demo-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:6px;cursor:pointer;transition:background 0.14s;}
+.demo-row:hover{background:var(--green-50);}
+[data-theme="dark"] .demo-row:hover{background:rgba(74,124,74,0.15);}
+.demo-role{font-size:0.78rem;font-weight:700;color:var(--green-700);}
+[data-theme="dark"] .demo-role{color:var(--green-300);}
+.demo-cred{font-size:0.76rem;color:var(--muted);}
+@media(max-width:768px){body{grid-template-columns:1fr;}.left{display:none;}.right{padding:24px 20px;}}
+</style>
+</head>
+<body>
+<div class="left">
+  <div class="brand"><div class="brand-logo">SM<span class="g">CS</span></div><div class="brand-tag">Secure Military Communication System</div></div>
+  <h2>Stay Connected.<br>Stay Secure.</h2>
+  <p>A platform engineered for soldiers to communicate safely with their families and coordinate missions — without compromising security.</p>
+  <div class="feat"><div class="feat-bullet"></div><span>AES/RSA end-to-end encryption on all messages</span></div>
+  <div class="feat"><div class="feat-bullet"></div><span>Offline queue — no message is ever lost</span></div>
+  <div class="feat"><div class="feat-bullet"></div><span>Real-time mission coordination</span></div>
+  <div class="feat"><div class="feat-bullet"></div><span>SOS emergency broadcast system</span></div>
+  <div class="feat"><div class="feat-bullet"></div><span>Dark / light mode + role-based access</span></div>
+</div>
+<div class="right">
+  <div class="form-box">
+    <div class="form-head"><h2 id="ftitle">Welcome back</h2><p id="fsub">Sign in to your secure account</p></div>
+    <div class="tabs"><button class="tab on" onclick="sw('login')">Sign In</button><button class="tab" onclick="sw('register')">Register</button></div>
+
+    <!-- LOGIN -->
+    <div id="pl">
+      <div class="alert alert-danger" id="lerr"><span id="lerr-msg"></span></div>
+      <div class="form-group"><label class="form-label">Username or Email</label><div class="input-wrap"><span class="input-icon"><i data-lucide="user"></i></span><input class="form-control has-icon" type="text" id="lu" placeholder="Username or email" autocomplete="username"/></div></div>
+      <div class="form-group"><label class="form-label">Password</label><div class="input-wrap"><span class="input-icon"><i data-lucide="lock"></i></span><input class="form-control has-icon" type="password" id="lp" placeholder="Your password" style="padding-right:58px"/><button class="eye-btn" onclick="togPw('lp')">Show</button></div></div>
+      <a class="forgot-link" href="/forgot-password">Forgot password?</a>
+      <button class="sub-btn" id="lbtn" onclick="doLogin()">Sign In →</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="pr" style="display:none">
+      <div class="alert alert-danger" id="rerr"><span id="rerr-msg"></span></div>
+      <div class="alert alert-success" id="rok"><span id="rok-msg"></span></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">First Name *</label><input class="form-control" type="text" id="rfn" placeholder="First name"/></div>
+        <div class="form-group"><label class="form-label">Last Name *</label><input class="form-control" type="text" id="rln" placeholder="Last name"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Username *</label><input class="form-control" type="text" id="ruser" placeholder="Choose a username"/></div>
+      <div class="form-group"><label class="form-label">Email *</label><input class="form-control" type="email" id="remail" placeholder="your@email.com"/></div>
+      <div class="form-group"><label class="form-label">Password * <span class="form-hint">(min 6 chars)</span></label><div class="input-wrap"><input class="form-control" type="password" id="rpass" placeholder="Create a password" oninput="pwStrength(this.value,'rpwbar')" style="padding-right:58px"/><button class="eye-btn" onclick="togPw('rpass')">Show</button></div><div class="pw-strength" id="rpwbar"></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Role</label><select class="form-control" id="rrole"><option value="soldier">Soldier</option><option value="family">Family Member</option></select></div>
+        <div class="form-group"><label class="form-label">Unit (optional)</label><input class="form-control" id="runit" placeholder="Alpha Squad"/></div>
+      </div>
+      <button class="sub-btn" id="rbtn" onclick="doReg()">Create Account →</button>
+    </div>
+
+    <div class="demo-box">
+      <div class="demo-title">Demo Accounts — click to fill</div>
+      <div class="demo-row" onclick="fill('soldier1')"><span class="demo-role">Soldier</span><span class="demo-cred">soldier1 / password123</span></div>
+      <div class="demo-row" onclick="fill('commander1')"><span class="demo-role">Commander</span><span class="demo-cred">commander1 / password123</span></div>
+      <div class="demo-row" onclick="fill('family1')"><span class="demo-role">Family</span><span class="demo-cred">family1 / password123</span></div>
+      <div class="demo-row" onclick="fill('admin')"><span class="demo-role">Admin</span><span class="demo-cred">admin / password123</span></div>
+  </div>
+</div>
+
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+// Auto-redirect to dashboard only if we have a token AND we're not here because it expired
+// (app.js already clears localStorage when ?expired=1 is in the URL)
+const _hasToken = localStorage.getItem('smcs_token');
+const _isExpired = window.location.search.includes('expired=1');
+
+if (_hasToken && !_isExpired) {
+  window.location.href = '/dashboard';
+} else if (_isExpired) {
+  // Show a polite "session expired" message via toast once the DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    toast('Session Expired', 'Please sign in again.', 'warning', 5000);
+  });
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+  });
+}
+
+function sw(t){
+  const L=t==='login';
+  document.getElementById('pl').style.display=L?'block':'none';
+  document.getElementById('pr').style.display=L?'none':'block';
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',(i===0&&L)||(i===1&&!L)));
+  document.getElementById('ftitle').textContent=L?'Welcome back':'Create account';
+  document.getElementById('fsub').textContent=L?'Sign in to your secure account':'Join SMCS today';
+}
+function fill(u){document.getElementById('lu').value=u;document.getElementById('lp').value='password123';sw('login');}
+function se(id,msg){document.getElementById(id+'-msg').textContent=msg;document.getElementById(id).classList.add('show');}
+function he(id){document.getElementById(id).classList.remove('show');}
+
+async function doLogin(){
+  he('lerr');
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  if(!u||!p){ se('lerr','Please enter username/email and password'); return; }
+  const b=document.getElementById('lbtn');
+  b.disabled=true; b.textContent='Signing in...';
+  try{
+    const r=await fetch(BASE + '/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p}),credentials: 'include'});
+    const d=await r.json();
+    if(d.error) throw new Error(d.error);
+    // Save user info for display (token goes in cookie automatically)
+    localStorage.setItem('smcs_token', d.token);
+    localStorage.setItem('smcs_user', JSON.stringify(d.user));
+    toast('Welcome back!', `Signed in as ${d.user.name}`, 'success', 2000);
+    setTimeout(() => window.location.href='/dashboard', 700);
+  }catch(e){
+    se('lerr', e.message);
+    toast('Login Failed', e.message, 'danger', 5000);
+  }finally{
+    b.disabled=false; b.textContent='Sign In →';
+  }
+}
+
+async function doReg(){
+  he('rerr'); document.getElementById('rok').classList.remove('show');
+  const fn=document.getElementById('rfn').value.trim();
+  const ln=document.getElementById('rln').value.trim();
+  const u=document.getElementById('ruser').value.trim();
+  const em=document.getElementById('remail').value.trim();
+  const pw=document.getElementById('rpass').value;
+  const role=document.getElementById('rrole').value;
+  const unit=document.getElementById('runit').value.trim();
+  if(!fn||!ln||!u||!em||!pw){ se('rerr','Please fill all required fields'); return; }
+  if(pw.length<6){ se('rerr','Password must be at least 6 characters'); return; }
+  const b=document.getElementById('rbtn');
+  b.disabled=true; b.textContent='Creating...';
+  try{
+    const r=await fetch(BASE + '/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:fn+' '+ln,username:u,email:em,password:pw,role,unit})});
+    const d=await r.json();
+    if(d.error) throw new Error(d.error);
+    document.getElementById('rok-msg').textContent=d.message;
+    document.getElementById('rok').classList.add('show');
+    toast('Account Created!', 'You can now sign in.', 'success', 4000);
+    setTimeout(()=>sw('login'),1600);
+  }catch(e){
+    se('rerr',e.message);
+    toast('Registration Failed', e.message, 'danger', 5000);
+  }finally{
+    b.disabled=false; b.textContent='Create Account →';
+  }
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){document.getElementById('pl').style.display!=='none'?doLogin():doReg();}});
+</script>
+</body>
+</html>
+

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Register</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body{min-height:100vh;background:linear-gradient(135deg,var(--green-900) 0%,var(--green-800) 60%,var(--green-700) 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
+  .box{background:var(--surface);border-radius:var(--radius-xl);width:100%;max-width:520px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.3);}
+  .bh{background:var(--green-800);padding:26px 36px;display:flex;align-items:center;justify-content:space-between;}
+  [data-theme="dark"] .bh{background:var(--green-900);}
+  .logo{font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:0.05em;}
+  .logo .g{color:var(--gold);}
+  .logo-sub{font-size:0.68rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.12em;margin-top:2px;}
+  .back-btn{padding:7px 16px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-family:inherit;font-size:0.8rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+  .back-btn:hover{background:rgba(255,255,255,0.18);color:#fff;}
+  .bb{padding:32px 36px;}
+  .form-title{font-family:var(--font-display);font-size:1.5rem;color:var(--text);margin-bottom:5px;}
+  .form-sub{font-size:0.86rem;color:var(--muted);margin-bottom:26px;line-height:1.6;}
+  .sub-btn{width:100%;padding:12px;background:var(--green-800);color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:0.92rem;font-weight:700;cursor:pointer;transition:background 0.2s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .sub-btn:hover{background:var(--green-600);}
+  .sub-btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .note{margin-top:14px;padding:12px 14px;background:var(--green-50);border:1px solid var(--green-100);border-radius:var(--radius);font-size:0.79rem;color:var(--green-700);line-height:1.6;}
+  [data-theme="dark"] .note{background:rgba(74,124,74,0.12);border-color:rgba(74,124,74,0.2);color:var(--green-300);}
+  .note strong{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+  .ll{text-align:center;margin-top:18px;font-size:0.83rem;color:var(--muted);}
+  .ll a{color:var(--green-600);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="bh">
+    <div><div class="logo">SM<span class="g">CS</span></div><div class="logo-sub">Secure Military Communication System</div></div>
+    <a class="back-btn" href="/login"><i data-lucide="arrow-left" style="width:14px;height:14px"></i> Back to Login</a>
+  </div>
+  <div class="bb">
+    <div class="form-title">Create Account</div>
+    <p class="form-sub">Register to join SMCS. Commander and Admin roles must be assigned by a System Administrator.</p>
+    <div class="alert alert-danger" id="err"><span id="err-msg"></span></div>
+    <div class="alert alert-success" id="ok"><span id="ok-msg"></span></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">First Name *</label><input class="form-control" id="fn" placeholder="First name"/></div>
+      <div class="form-group"><label class="form-label">Last Name *</label><input class="form-control" id="ln" placeholder="Last name"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Username *</label><input class="form-control" id="un" placeholder="Choose a unique username" autocomplete="username"/></div>
+    <div class="form-group"><label class="form-label">Email * <span class="form-hint">(used for password reset)</span></label><input class="form-control" type="email" id="em" placeholder="your@email.com"/></div>
+    <div class="form-group">
+      <label class="form-label">Password * <span class="form-hint">(min 6 characters)</span></label>
+      <div class="input-wrap"><input class="form-control" type="password" id="pw" placeholder="Create a strong password" oninput="pwStrength(this.value,'pw-bar')" style="padding-right:58px" autocomplete="new-password"/><button class="eye-btn" onclick="togPw('pw')">Show</button></div>
+      <div class="pw-strength" id="pw-bar"></div>
+    </div>
+    <div class="form-group"><label class="form-label">Confirm Password *</label><div class="input-wrap"><input class="form-control" type="password" id="cp" placeholder="Repeat your password" style="padding-right:58px" autocomplete="new-password"/><button class="eye-btn" onclick="togPw('cp')">Show</button></div></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Role</label><select class="form-control" id="ro"><option value="soldier">Soldier</option><option value="family">Family Member</option></select></div>
+      <div class="form-group"><label class="form-label">Unit (optional)</label><input class="form-control" id="ut" placeholder="e.g. Alpha Squad"/></div>
+    </div>
+    <div class="note"><strong><i data-lucide="shield-check" style="width:14px;height:14px"></i> Security Notice</strong>Family members can only access the messaging portal — they cannot view missions or operational data. All messages are end-to-end encrypted.</div>
+    <button class="sub-btn" id="sbtn" onclick="doReg()">Create Account <i data-lucide="arrow-right" style="width:16px;height:16px"></i></button>
+    <div class="ll">Already have an account? <a href="/login">Sign in here</a></div>
+  </div>
+</div>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+lucide.createIcons();
+if(localStorage.getItem('smcs_token')) window.location.href='/dashboard';
+function se(msg){document.getElementById('err-msg').textContent=msg;document.getElementById('err').classList.add('show');}
+function he(){document.getElementById('err').classList.remove('show');document.getElementById('ok').classList.remove('show');}
+async function doReg(){
+  he();
+  const fn=document.getElementById('fn').value.trim(),ln=document.getElementById('ln').value.trim();
+  const un=document.getElementById('un').value.trim(),em=document.getElementById('em').value.trim();
+  const pw=document.getElementById('pw').value,cp=document.getElementById('cp').value;
+  const ro=document.getElementById('ro').value,ut=document.getElementById('ut').value.trim();
+  if(!fn||!ln||!un||!em||!pw){se('Please fill all required fields');return;}
+  if(pw.length<6){se('Password must be at least 6 characters');return;}
+  if(pw!==cp){se('Passwords do not match');return;}
+  const btn=document.getElementById('sbtn');btn.disabled=true;btn.innerHTML='Creating...';
+  try{
+    const r=await fetch(BASE + '/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:fn+' '+ln,username:un,email:em,password:pw,role:ro,unit:ut})});
+    const d=await r.json();if(d.error)throw new Error(d.error);
+    document.getElementById('ok-msg').textContent=d.message+' Redirecting...';document.getElementById('ok').classList.add('show');
+    setTimeout(()=>window.location.href='/login',2000);
+  }catch(e){se(e.message);}finally{btn.disabled=false;btn.innerHTML='Create Account <i data-lucide="arrow-right" style="width:16px;height:16px"></i>'; if(typeof lucide !== 'undefined') lucide.createIcons();}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')doReg();});
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Military Secure Messaging Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/main.css"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{--g9:#1a2e1a;--g8:#243324;--g7:#2e4a2e;--g6:#3d6b3d;--g5:#4a7c4a;--g3:#7aaa7a;--g1:#d4e8d4;--g0:#eef6ee;--gold:#c8a84b;--gl:#f0d878;--white:#fff;--off:#f8faf8;--gray:#5a6a5a;--bdr:rgba(61,107,61,0.15);}
+[data-theme="dark"]{--off:#111a11;--white:#1e2d1e;--gray:#8aaa8a;--bdr:rgba(122,170,122,0.12);}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--off);color:#2a3a2a;overflow-x:hidden;}
+[data-theme="dark"] body{color:#e8f4e8;}
+a{text-decoration:none;color:inherit;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(36,51,36,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.nav-i{max-width:1200px;margin:0 auto;padding:0 40px;height:66px;display:flex;align-items:center;gap:32px;}
+.nl{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:0.05em;}
+.nl .g{color:var(--gold);}
+.nls{display:flex;gap:26px;flex:1;justify-content:center;}
+.nls a{font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.62);transition:color 0.2s;}
+.nls a:hover{color:#fff;}
+.nbtns{display:flex;gap:8px;}
+.bo{padding:8px 18px;border:1.5px solid rgba(255,255,255,0.22);border-radius:8px;color:rgba(255,255,255,0.78);font-size:0.83rem;font-weight:600;transition:all 0.2s;}
+.bo:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.bs{padding:8px 20px;background:var(--gold);color:var(--g9);border-radius:8px;font-size:0.83rem;font-weight:700;transition:all 0.2s;}
+.bs:hover{background:var(--gl);}
+.hero{min-height:100vh;background:linear-gradient(135deg,var(--g9) 0%,var(--g8) 55%,var(--g7) 100%);display:flex;align-items:center;padding-top:66px;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1579912437766-7896df6d3cd3?w=1400&q=60') center/cover;opacity:0.07;}
+.hi{max-width:1200px;margin:0 auto;padding:80px 40px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:1;}
+.htag{display:inline-flex;align-items:center;gap:8px;background:rgba(200,168,75,0.15);border:1px solid rgba(200,168,75,0.3);color:var(--gold);padding:6px 16px;border-radius:20px;font-size:0.74rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:22px;}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,4.5vw,3.5rem);font-weight:700;color:#fff;line-height:1.2;margin-bottom:18px;}
+.hero h1 .g{color:var(--gold);}
+.hero p{font-size:1rem;color:rgba(255,255,255,0.58);line-height:1.8;max-width:480px;margin-bottom:34px;}
+.hbtns{display:flex;gap:13px;flex-wrap:wrap;}
+.hbp{padding:13px 30px;background:var(--gold);color:var(--g9);border-radius:9px;font-size:0.94rem;font-weight:700;transition:all 0.2s;display:inline-block;}
+.hbp:hover{background:var(--gl);transform:translateY(-1px);}
+.hbg{padding:13px 30px;border:2px solid rgba(255,255,255,0.22);color:rgba(255,255,255,0.84);border-radius:9px;font-size:0.94rem;font-weight:600;transition:all 0.2s;display:inline-block;}
+.hbg:hover{background:rgba(255,255,255,0.08);}
+.sb{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:30px;backdrop-filter:blur(12px);}
+.sr{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.si-n{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#fff;line-height:1;}
+.si-n.g{color:var(--gold);}
+.si-l{font-size:0.7rem;color:rgba(255,255,255,0.42);margin-top:4px;text-transform:uppercase;letter-spacing:0.08em;}
+.prow{display:flex;align-items:center;gap:9px;padding:11px 14px;background:rgba(255,255,255,0.05);border-radius:10px;font-size:0.83rem;color:rgba(255,255,255,0.68);}
+.pdot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pdp 2s infinite;}
+@keyframes pdp{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,0.4)}50%{box-shadow:0 0 0 5px rgba(74,222,128,0)}}
+section{padding:90px 40px;}
+.si{max-width:1200px;margin:0 auto;}
+.stag{font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--g6);margin-bottom:11px;}
+.stitle{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3vw,2.5rem);font-weight:700;color:var(--g8);line-height:1.25;margin-bottom:13px;}
+[data-theme="dark"] .stitle{color:var(--g3);}
+.ssub{font-size:0.97rem;color:var(--gray);line-height:1.75;max-width:580px;}
+.c{text-align:center;}.c .ssub{margin:0 auto;}
+.probsec{background:var(--g8);}
+[data-theme="dark"] .probsec{background:var(--g9);}
+.probsec .stag{color:var(--g3);}
+.probsec .stitle{color:#fff;}
+.probsec .ssub{color:rgba(255,255,255,0.52);}
+.pg{display:grid;grid-template-columns:1fr 1.3fr;gap:80px;align-items:center;}
+.pcs{display:flex;flex-direction:column;gap:13px;}
+.pc{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-left:3px solid var(--gold);border-radius:10px;padding:16px 20px;transition:background 0.2s;}
+.pc:hover{background:rgba(255,255,255,0.08);}
+.pc h4{color:#fff;font-size:0.9rem;font-weight:600;margin-bottom:5px;}
+.pc p{color:rgba(255,255,255,0.48);font-size:0.83rem;line-height:1.6;}
+.feats{background:var(--off);}
+.fg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:50px;}
+.fc{background:var(--white);border:1px solid var(--bdr);border-radius:14px;padding:26px 22px;transition:transform 0.2s,box-shadow 0.2s;}
+.fc:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(26,46,26,0.1);}
+.fi{width:46px;height:46px;border-radius:11px;background:var(--g0);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:14px;border:1px solid var(--g1);color:var(--g8);}
+[data-theme="dark"] .fi{background:var(--g7);border-color:var(--g6);color:var(--g3);}
+.fc h4{font-size:0.94rem;font-weight:700;color:var(--g8);margin-bottom:7px;}
+[data-theme="dark"] .fc h4{color:var(--g3);}
+.fc p{font-size:0.83rem;color:var(--gray);line-height:1.65;}
+.actors{background:var(--g0);}
+[data-theme="dark"] .actors{background:var(--g9);}
+.ag{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:44px;}
+.ac{background:var(--white);border:1px solid var(--bdr);border-radius:14px;padding:26px 18px;text-align:center;position:relative;overflow:hidden;transition:transform 0.2s;}
+.ac::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--g6);}
+.ac.gld::before{background:var(--gold);}
+.ac:hover{transform:translateY(-3px);}
+.an{width:42px;height:42px;border-radius:50%;background:var(--g8);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin:0 auto 14px;}
+.an.gld{background:var(--gold);color:var(--g9);}
+.ac h3{font-size:0.93rem;font-weight:700;color:var(--g8);margin-bottom:7px;}
+[data-theme="dark"] .ac h3{color:var(--g3);}
+.ac p{font-size:0.81rem;color:var(--gray);line-height:1.6;}
+.howsec{background:var(--white);}
+[data-theme="dark"] .howsec{background:var(--g8);}
+.steps{display:flex;align-items:flex-start;gap:0;margin-top:50px;position:relative;}
+.steps::before{content:'';position:absolute;top:27px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--g6),var(--g3));z-index:0;}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1;}
+.sc{width:54px;height:54px;border-radius:50%;background:var(--white);border:3px solid var(--g6);display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:14px;transition:background 0.2s,transform 0.2s;}
+[data-theme="dark"] .sc{background:var(--g8);}
+.sc:hover{background:var(--g6);transform:scale(1.1);}
+.step h4{font-size:0.84rem;font-weight:700;color:var(--g8);margin-bottom:3px;}
+[data-theme="dark"] .step h4{color:var(--g3);}
+.step p{font-size:0.76rem;color:var(--gray);}
+.snote{margin-top:44px;padding:16px 22px;background:var(--g0);border:1px solid var(--g1);border-left:3px solid var(--g6);border-radius:10px;font-size:0.86rem;color:var(--g7);line-height:1.7;}
+.techsec{background:var(--off);}
+.tg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:44px;}
+.tc{background:var(--white);border:1px solid var(--bdr);border-radius:14px;padding:26px 22px;transition:transform 0.2s;}
+.tc:hover{transform:translateY(-3px);}
+.ti{width:52px;height:52px;border-radius:50%;background:var(--g8);display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:16px;color:var(--gold);border:1px solid rgba(200,168,75,0.2);}
+[data-theme="dark"] .ti{background:var(--g9);border-color:rgba(200,168,75,0.4);}
+.tc h3{font-size:0.97rem;font-weight:700;color:var(--g8);margin-bottom:7px;}
+[data-theme="dark"] .tc h3{color:var(--g3);}
+.tc p{font-size:0.84rem;color:var(--gray);line-height:1.65;}
+.ctasec{background:var(--g8);text-align:center;padding:90px 40px;}
+[data-theme="dark"] .ctasec{background:var(--g9);}
+.ctasec .stitle{color:#fff;margin-bottom:14px;}
+.ctasec p{color:rgba(255,255,255,0.52);max-width:560px;margin:0 auto 32px;font-size:0.95rem;line-height:1.75;}
+.cb{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+footer{background:var(--g9);padding:36px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;}
+.rv{opacity:0;transform:translateY(22px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.rv.in{opacity:1;transform:translateY(0);}
+.rv.d1{transition-delay:0.1s;}.rv.d2{transition-delay:0.2s;}.rv.d3{transition-delay:0.3s;}.rv.d4{transition-delay:0.4s;}
+.theme-fab{position:fixed;bottom:22px;right:22px;width:46px;height:46px;border-radius:50%;background:var(--g8);color:#fff;border:none;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 16px rgba(26,46,26,0.3);transition:all 0.2s;display:flex;align-items:center;justify-content:center;z-index:200;}
+.theme-fab:hover{background:var(--g6);transform:scale(1.08);}
+@media(max-width:900px){.hi,.pg{grid-template-columns:1fr;}.hr{display:none!important;}.fg,.ag,.tg{grid-template-columns:1fr 1fr;}.steps::before{display:none;}.steps{flex-direction:column;gap:18px;}.nls{display:none;}section{padding:70px 22px;}.hi{padding:60px 22px;}}
+@media(max-width:600px){.fg,.ag,.tg{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-i">
+    <div class="nl">SM<span class="g">CS</span></div>
+    <div class="nls"><a href="#prob">Problem</a><a href="#feats">Features</a><a href="#actors">Roles</a><a href="#how">How it Works</a><a href="/about">About Us</a></div>
+    <div class="nbtns"><a href="/login" class="bo">Sign In</a><a href="/register" class="bs">Get Access</a></div>
+  </div>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hi">
+    <div>
+      <div class="htag">SMCS — Military Secure Messaging Platform</div>
+      <h1>Secure Military<br>Communication<br><span class="g">System</span></h1>
+      <p>A platform engineered to help soldiers communicate safely with their families and coordinate effectively during critical missions — without compromising security or reliability.</p>
+      <div class="hbtns"><a href="/register" class="hbp">Get Started →</a><a href="/login" class="hbg">Sign In</a></div>
+    </div>
+    <div class="hr">
+      <div class="sb">
+        <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.32);margin-bottom:22px">Platform Overview</div>
+        <div class="sr">
+          <div style="text-align:center"><div class="si-n">4</div><div class="si-l">System Actors</div></div>
+          <div style="text-align:center"><div class="si-n g">6</div><div class="si-l">Core Features</div></div>
+          <div style="text-align:center"><div class="si-n">3</div><div class="si-l">Tech Pillars</div></div>
+          <div style="text-align:center"><div class="si-n g">∞</div><div class="si-l">Offline Queue</div></div>
+        </div>
+        <div class="prow"><i data-lucide="check-circle" style="width:14px;height:14px;color:#4ade80"></i>System Operational · AES-256 Active · Dark Mode Ready</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="probsec" id="prob">
+  <div class="si pg">
+    <div class="rv"><div class="stag">The Problem</div><h2 class="stitle">Soldiers Are Left in the Dark</h2><p class="ssub">Limited communication with families during deployment causes deep isolation, while unsecured channels put sensitive data at risk.</p></div>
+    <div class="pcs rv d2">
+      <div class="pc"><h4>Severed Family Ties</h4><p>Limited or no communication during deployment causes deep emotional isolation and mental strain.</p></div>
+      <div class="pc"><h4>Information Security Risks</h4><p>Sensitive operational data vulnerable to interception, leaks, and unauthorized access over unsecured channels.</p></div>
+      <div class="pc"><h4>Unreliable Networks</h4><p>Remote and hostile zones often lack stable connectivity, making real-time coordination nearly impossible.</p></div>
+      <div class="pc"><h4>Mission Coordination Gaps</h4><p>Without a unified platform, teams struggle to synchronize movements and emergency responses in real time.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="feats" id="feats">
+  <div class="si">
+    <div class="c rv"><div class="stag">Core Capabilities</div><h2 class="stitle">Key Features at a Glance</h2><p class="ssub">Everything needed for secure, reliable military communications in one platform.</p></div>
+    <div class="fg">
+      <div class="fc rv d1"><div class="fi"><i data-lucide="lock"></i></div><h4>End-to-End Encryption</h4><p>Military-grade AES and RSA encryption protects every message from interception.</p></div>
+      <div class="fc rv d2"><div class="fi"><i data-lucide="archive"></i></div><h4>Offline Message Queue</h4><p>Messages saved locally when offline and auto-delivered when connection returns.</p></div>
+      <div class="fc rv d3"><div class="fi"><i data-lucide="alert-triangle"></i></div><h4>Emergency SOS Alerts</h4><p>One-tap emergency broadcast instantly notifies all commanding officers.</p></div>
+      <div class="fc rv d1"><div class="fi"><i data-lucide="target"></i></div><h4>Mission Management</h4><p>Commanders create missions; soldiers post real-time updates.</p></div>
+      <div class="fc rv d2"><div class="fi"><i data-lucide="heart"></i></div><h4>Family Portal</h4><p>Sandboxed secure environment — zero access to operational data.</p></div>
+      <div class="fc rv d3"><div class="fi"><i data-lucide="moon"></i></div><h4>Dark / Light Mode</h4><p>Full theme switching with your preference saved across all sessions.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="actors" id="actors">
+  <div class="si">
+    <div class="c rv"><div class="stag">System Architecture</div><h2 class="stitle">Actors & Their Roles</h2><p class="ssub">SMCS serves four distinct user types with tailored access levels.</p></div>
+    <div class="ag">
+      <div class="ac rv d1"><div class="an">1</div><h3>Soldier</h3><p>Messages family, accesses missions, triggers SOS alerts, receives commander updates.</p></div>
+      <div class="ac gld rv d2"><div class="an gld">2</div><h3>Commander</h3><p>Creates and manages missions, monitors troops, reviews all SOS alerts in real time.</p></div>
+      <div class="ac rv d3"><div class="an">3</div><h3>Family Member</h3><p>Secure messaging portal only — completely blocked from missions and operational data.</p></div>
+      <div class="ac gld rv d4"><div class="an gld">4</div><h3>System Admin</h3><p>Manages user roles, security policies, and monitors system-wide health.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="howsec" id="how">
+  <div class="si">
+    <div class="c rv"><div class="stag">System Flow</div><h2 class="stitle">How SMCS Works — Step by Step</h2></div>
+    <div class="steps rv d1">
+      <div class="step"><div class="sc"><i data-lucide="user"></i></div><h4>Login</h4><p>Authenticated</p></div>
+      <div class="step"><div class="sc"><i data-lucide="shield"></i></div><h4>Security Check</h4><p>Role verified</p></div>
+      <div class="step"><div class="sc"><i data-lucide="list"></i></div><h4>Choose Action</h4><p>Message, alert, track</p></div>
+      <div class="step"><div class="sc"><i data-lucide="lock"></i></div><h4>Encrypt & Send</h4><p>AES/RSA</p></div>
+      <div class="step"><div class="sc"><i data-lucide="database"></i></div><h4>Store or Deliver</h4><p>Online or offline</p></div>
+    </div>
+    <div class="snote rv d2">Every interaction passes through a security checkpoint. If the network drops, SMCS stores messages locally and delivers them automatically — ensuring no communication is ever lost.</div>
+  </div>
+</section>
+
+<section class="techsec" id="tech">
+  <div class="si">
+    <div class="c rv"><div class="stag">Technology Stack</div><h2 class="stitle">Built on Proven, Scalable Technologies</h2></div>
+    <div class="tg">
+      <div class="tc rv d1"><div class="ti"><i data-lucide="zap"></i></div><h3>Node.js + Express</h3><p>Fast, event-driven server handling real-time messaging at scale with minimal latency.</p></div>
+      <div class="tc rv d2"><div class="ti"><i data-lucide="database"></i></div><h3>MySQL Database</h3><p>Reliable relational database for user records, encrypted messages, missions, and audit trails.</p></div>
+      <div class="tc rv d3"><div class="ti"><i data-lucide="key"></i></div><h3>AES / RSA Encryption</h3><p>Industry-standard algorithms safeguarding all data in transit and at rest.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="ctasec">
+  <div class="si">
+    <div class="stag" style="color:var(--g3)">Get Started</div>
+    <h2 class="stitle rv">Built for Those Who Serve</h2>
+    <p class="rv d1">SMCS addresses the human cost of disconnection in modern military operations. By securing communications and empowering commanders, SMCS delivers measurable impact.</p>
+    <div class="cb rv d2"><a href="/register" class="hbp">Create Account →</a><a href="/login" class="hbg">Sign In</a><a href="/about" class="hbg">About Us</a></div>
+  </div>
+</section>
+
+<footer>
+  <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:#fff">SM<span style="color:var(--gold)">CS</span></div>
+  <p style="color:rgba(255,255,255,0.28);font-size:0.79rem">Secure Military Communication System · Group Project</p>
+  <p style="color:rgba(255,255,255,0.18);font-size:0.76rem">Node.js · Socket.IO · AES/RSA</p>
+</footer>
+
+<button class="theme-fab" id="tfab" onclick="toggleTheme()" title="Toggle dark mode"><i data-lucide="moon"></i></button>
+
+<script>
+lucide.createIcons();
+function initTheme(){const s=localStorage.getItem('smcs_theme')||'light';document.documentElement.setAttribute('data-theme',s);updateFab(s);}
+function updateFab(t){document.getElementById('tfab').innerHTML=t==='dark'?'<i data-lucide="sun"></i>':'<i data-lucide="moon"></i>';lucide.createIcons();}
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('smcs_theme',n);updateFab(n);}
+initTheme();
+const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('in');}),{threshold:0.1});
+document.querySelectorAll('.rv').forEach(el=>obs.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}}));
+</script>
+</body>
+</html>
+

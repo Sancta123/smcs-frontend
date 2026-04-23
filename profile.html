@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Profile</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+.profile-hero{background:linear-gradient(135deg,var(--green-800),var(--green-600));border-radius:var(--radius-lg);padding:36px 32px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden;}
+[data-theme="dark"] .profile-hero{background:linear-gradient(135deg,var(--green-900),var(--green-800));}
+.profile-hero::before{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,0.04);}
+.ph-inner{display:flex;align-items:center;gap:24px;flex-wrap:wrap;position:relative;}
+.ph-avatar{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.6rem;border:3px solid rgba(255,255,255,0.3);flex-shrink:0;}
+.ph-info h2{font-family:var(--font-display);font-size:1.6rem;margin-bottom:4px;}
+.ph-info p{color:rgba(255,255,255,0.65);font-size:0.86rem;}
+.ph-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.ph-badge{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:3px 12px;border-radius:20px;font-size:0.74rem;font-weight:600;}
+.info-row{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--border);}
+.info-row:last-child{border-bottom:none;}
+.info-label{font-size:0.78rem;font-weight:600;color:var(--muted);width:120px;flex-shrink:0;padding-top:1px;text-transform:uppercase;letter-spacing:0.05em;}
+.info-value{font-size:0.9rem;color:var(--text);flex:1;}
+.info-value.empty{color:var(--muted);font-style:italic;}
+.edit-form{display:none;}
+.edit-form.show{display:block;}
+.view-info.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="sidebar" id="sidebar"></div>
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="page-body" style="max-width:760px">
+
+    <!-- Profile Hero -->
+    <div class="profile-hero">
+      <div class="ph-inner">
+        <div class="ph-avatar" id="ph-av"></div>
+        <div class="ph-info">
+          <h2 id="ph-name"></h2>
+          <p id="ph-role-unit"></p>
+          <div class="ph-badges" id="ph-badges"></div>
+        </div>
+        <div style="margin-left:auto">
+          <button class="btn btn-gold btn-sm" onclick="toggleEdit()"><i data-lucide="edit-3" style="width:14px;height:14px;margin-right:4px"></i> Edit Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Info -->
+    <div class="card mb-6 view-info" id="view-card">
+      <div class="card-header"><span class="card-title"><i data-lucide="user" class="icon-inline"></i> Personal Information</span></div>
+      <div class="card-body">
+        <div class="info-row"><div class="info-label"><i data-lucide="user" class="icon-inline-xs"></i> Full Name</div><div class="info-value" id="vi-name">—</div></div>
+        <div class="info-row"><div class="info-label"><i data-lucide="at-sign" class="icon-inline-xs"></i> Username</div><div class="info-value" id="vi-user">—</div></div>
+        <div class="info-row"><div class="info-label"><i data-lucide="mail" class="icon-inline-xs"></i> Email</div><div class="info-value" id="vi-email">—</div></div>
+        <div class="info-row"><div class="info-label"><i data-lucide="phone" class="icon-inline-xs"></i> Phone</div><div class="info-value" id="vi-phone">—</div></div>
+        <div class="info-row"><div class="info-label"><i data-lucide="shield" class="icon-inline-xs"></i> Role</div><div class="info-value" id="vi-role">—</div></div>
+        <div class="info-row"><div class="info-label"><i data-lucide="users" class="icon-inline-xs"></i> Unit / Squad</div><div class="info-value" id="vi-unit">—</div></div>
+        <div class="info-row"><div class="info-label"><i data-lucide="file-text" class="icon-inline-xs"></i> Bio</div><div class="info-value" id="vi-bio">—</div></div>
+        <div class="info-row"><div class="info-label"><i data-lucide="calendar" class="icon-inline-xs"></i> Member Since</div><div class="info-value" id="vi-since">—</div></div>
+      </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="card mb-6 edit-form" id="edit-card">
+      <div class="card-header"><span class="card-title"><i data-lucide="edit-3" class="icon-inline"></i> Edit Profile</span></div>
+      <div class="card-body">
+        <div class="alert alert-danger" id="ep-err"><span id="ep-err-msg"></span></div>
+        <div class="alert alert-success" id="ep-ok"><span id="ep-ok-msg"></span></div>
+        
+        <div class="form-group" style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+          <div id="ep-av-preview" class="avatar avatar-lg av-green" style="width:64px;height:64px;font-size:1.4rem;"></div>
+          <div>
+            <label class="btn btn-secondary btn-sm" style="cursor:pointer;margin-bottom:4px;">
+              Upload Photo
+              <input type="file" id="ep-avatar-upload" accept="image/png, image/jpeg, image/webp" style="display:none;" onchange="previewAvatar(this)"/>
+            </label>
+            <div style="font-size:0.75rem;color:var(--muted)">Max 5MB. JPEG or PNG.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Full Name</label><input class="form-control" id="ep-name" placeholder="Your full name"/></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-control" type="email" id="ep-email" placeholder="your@email.com"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-control" id="ep-phone" placeholder="+1-555-0000"/></div>
+          <div class="form-group"><label class="form-label">Unit / Squad</label><input class="form-control" id="ep-unit" placeholder="e.g. Alpha Squad"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Bio <span class="form-hint">(optional)</span></label><textarea class="form-control" id="ep-bio" placeholder="A short description about yourself..."></textarea></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="saveProfile()" id="ep-save-btn">Save Changes</button>
+          <button class="btn btn-secondary" onclick="toggleEdit()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity / Stats -->
+    <div class="card">
+      <div class="card-header"><span class="card-title"><i data-lucide="bar-chart-2" class="icon-inline"></i> Account Overview</span></div>
+      <div class="card-body">
+        <div class="grid-3" style="gap:14px">
+          <div style="text-align:center;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)">
+            <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--green-800)" id="msg-count">—</div>
+            <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em">Messages</div>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)">
+            <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--green-800)" id="queue-count">—</div>
+            <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em">Queued</div>
+          </div>
+          <div style="text-align:center;padding:16px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)">
+            <div style="font-family:var(--font-display);font-size:1.6rem;font-weight:700;color:var(--green-800)" id="status-ind">—</div>
+            <div style="font-size:0.74rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em">Status</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="net-banner"></div>
+<button class="helpbot-fab" id="hb-fab"><i data-lucide="bot"></i></button>
+<div class="helpbot-panel" id="hb-panel">
+  <div class="helpbot-head"><div class="helpbot-avatar"><i data-lucide="bot"></i></div><div><h4>SMCS Assistant</h4><p>Ask me anything</p></div></div>
+  <div class="helpbot-msgs" id="hb-msgs"><div class="bot-msg">Ask me about editing your profile, changing passwords, or anything else.</div></div>
+  <div class="helpbot-chips"><div class="hchip">Edit profile</div><div class="hchip">Password</div><div class="hchip">Privacy</div></div>
+  <div class="helpbot-input-row"><input class="helpbot-input" id="hb-input" placeholder="Ask anything..."/><button class="helpbot-send" id="hb-send"><i data-lucide="send" style="width:16px;height:16px"></i></button></div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+let user;
+let selectedFile = null;
+const AVC={soldier:'av-green',commander:'av-gold',family:'av-blue',admin:'av-purple'};
+
+async function init(){
+  user=await requireAuth();if(!user)return;
+  renderSidebar(user,'profile');
+  renderTopbar(user,'My Profile');
+  initSocket(user.id);
+  renderProfile(user);
+  document.addEventListener('smcs:message', () => loadMessageCount());
+}
+
+function renderAvatar(u, el) {
+  if (u.avatar && (u.avatar.startsWith('/') || u.avatar.startsWith('http'))) {
+    el.innerHTML = `<img src="${u.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    el.className = el.id === 'ph-av' ? 'ph-avatar' : 'avatar avatar-lg';
+  } else {
+    el.textContent = u.avatar || '?'; 
+    el.className = el.id === 'ph-av' ? `ph-avatar ${AVC[u.role]||'av-green'}` : `avatar avatar-lg ${AVC[u.role]||'av-green'}`;
+  }
+}
+
+function renderProfile(u){
+  const av=document.getElementById('ph-av');
+  renderAvatar(u, av);
+  
+  document.getElementById('ph-name').textContent=u.name;
+  document.getElementById('ph-role-unit').textContent=`${u.role.charAt(0).toUpperCase()+u.role.slice(1)}${u.unit?' · '+u.unit:''}`;
+  
+  // They are looking at their own profile, so they are online
+  const isOnline = navigator.onLine ? 'Online' : 'Offline';
+  const icon = navigator.onLine ? 'circle' : 'circle';
+  document.getElementById('ph-badges').innerHTML=`<span class="ph-badge">${u.role}</span>${u.unit?`<span class="ph-badge">${u.unit}</span>`:''}<span class="ph-badge"><i data-lucide="${navigator.onLine?'check-circle':'x-circle'}" style="width:12px;height:12px;margin-right:4px"></i>${isOnline}</span>`;
+  
+  document.getElementById('vi-name').textContent=u.name||'—';
+  document.getElementById('vi-user').textContent=`@${u.username}`;
+  document.getElementById('vi-email').textContent=u.email||'—';
+  document.getElementById('vi-phone').textContent=u.phone||'—';
+  document.getElementById('vi-role').innerHTML=`<span class="badge badge-${u.role}">${u.role}</span>`;
+  document.getElementById('vi-unit').textContent=u.unit||'—';
+  document.getElementById('vi-bio').textContent=u.bio||'No bio added yet.';
+  document.getElementById('vi-since').textContent=u.createdAt?new Date(u.createdAt).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}):'—';
+  document.getElementById('ep-name').value=u.name||'';
+  document.getElementById('ep-email').value=u.email||'';
+  document.getElementById('ep-phone').value=u.phone||'';
+  document.getElementById('ep-unit').value=u.unit||'';
+  document.getElementById('ep-bio').value=u.bio||'';
+  
+  const previewAv = document.getElementById('ep-av-preview');
+  renderAvatar(u, previewAv);
+
+  const q=JSON.parse(localStorage.getItem('smcs_offline_queue')||'[]');
+  document.getElementById('queue-count').textContent=q.length;
+  document.getElementById('status-ind').innerHTML=navigator.onLine?'<i data-lucide="check-circle" style="color:var(--success);width:14px;height:14px"></i>':'<i data-lucide="x-circle" style="color:var(--error);width:14px;height:14px"></i>';
+  loadMessageCount();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+async function loadMessageCount() {
+  try {
+    const { count } = await api('/api/messages/count');
+    document.getElementById('msg-count').textContent = count;
+  } catch (e) {}
+}
+
+function previewAvatar(input) {
+  if (input.files && input.files[0]) {
+    selectedFile = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const prev = document.getElementById('ep-av-preview');
+      prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    }
+    reader.readAsDataURL(selectedFile);
+  }
+}
+
+function toggleEdit(){
+  const vc=document.getElementById('view-card'),ec=document.getElementById('edit-card');
+  const editing=ec.classList.contains('show');
+  vc.classList.toggle('hidden',!editing?true:false);
+  ec.classList.toggle('show',!editing);
+  if(editing){
+    selectedFile = null;
+    document.getElementById('ep-avatar-upload').value = '';
+    renderProfile(user);
+  }
+}
+
+async function saveProfile(){
+  document.getElementById('ep-err').classList.remove('show');
+  document.getElementById('ep-ok').classList.remove('show');
+  const name=document.getElementById('ep-name').value.trim();
+  const email=document.getElementById('ep-email').value.trim();
+  const phone=document.getElementById('ep-phone').value.trim();
+  const unit=document.getElementById('ep-unit').value.trim();
+  const bio=document.getElementById('ep-bio').value.trim();
+  if(!name){document.getElementById('ep-err-msg').textContent='Name is required';document.getElementById('ep-err').classList.add('show');return;}
+  
+  const btn = document.getElementById('ep-save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try{
+    // Use FormData for file upload
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('unit', unit);
+    formData.append('bio', bio);
+    if (selectedFile) formData.append('avatar', selectedFile);
+
+    const token = localStorage.getItem('smcs_token');
+    const r = await fetch(BASE + '/api/auth/profile', {
+      method: 'PATCH',
+      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      body: formData,
+      credentials: 'include'
+    });
+    
+    const updated = await r.json();
+    if (!r.ok) throw new Error(updated.error || 'Failed to update profile');
+    
+    user=updated; currentUser=updated; localStorage.setItem('smcs_user',JSON.stringify(updated));
+    document.getElementById('ep-ok-msg').textContent='Profile updated successfully!';
+    document.getElementById('ep-ok').classList.add('show');
+    renderProfile(user); renderSidebar(user,'profile'); renderTopbar(user,'My Profile');
+    setTimeout(()=>toggleEdit(),1500);
+  }catch(e){
+    document.getElementById('ep-err-msg').textContent=e.message;
+    document.getElementById('ep-err').classList.add('show');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Save Changes';
+  }
+}
+init();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Missions</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<style>
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:20px;}
+.fp{padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:0.8rem;font-weight:600;color:var(--muted);transition:all 0.15s;font-family:inherit;}
+.fp.on{background:var(--green-800);color:#fff;border-color:var(--green-800);}
+[data-theme="dark"] .fp.on{background:var(--green-600);border-color:var(--green-600);}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:box-shadow 0.2s;}
+.mc:hover{box-shadow:var(--shadow-lg);}
+.mc-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;}
+.mc-body{padding:16px 20px;}
+.m-title{font-weight:700;font-size:0.94rem;color:var(--text);margin-bottom:3px;}
+.m-loc{font-size:0.76rem;color:var(--muted);}
+.m-desc{font-size:0.85rem;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.upd-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;color:var(--green-800);margin-bottom:8px;}
+[data-theme="dark"] .upd-label{color:var(--green-300);}
+.upd-item{display:flex;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);}
+.upd-item:last-child{border-bottom:none;}
+.upd-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:7px;}
+.upd-text{font-size:0.82rem;color:var(--text);flex:1;}
+.upd-by{font-size:0.71rem;color:var(--muted);margin-top:2px;}
+.upd-row{display:flex;gap:7px;margin-top:12px;}
+.upd-inp{flex:1;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:0.83rem;font-family:inherit;outline:none;background:var(--surface);color:var(--text);}
+.upd-inp:focus{border-color:var(--green-500);}
+.st-sel{padding:7px 9px;border:1.5px solid var(--border);border-radius:8px;font-size:0.78rem;font-family:inherit;outline:none;background:var(--surface);color:var(--text);}
+.upd-btn{padding:8px 13px;background:var(--green-700);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:0.81rem;font-weight:600;cursor:pointer;white-space:nowrap;}
+.upd-btn:hover{background:var(--green-600);}
+@media(max-width:768px){.mg{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="sidebar" id="sidebar"></div>
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="page-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <div class="filters" id="filters">
+        <button class="fp on" onclick="filt('all',this)">All</button>
+        <button class="fp" onclick="filt('active',this)"><i data-lucide="circle" style="color:#4ade80;fill:#4ade80;width:10px;height:10px;margin-right:6px"></i> Active</button>
+        <button class="fp" onclick="filt('pending',this)"><i data-lucide="circle" style="color:var(--gold);fill:var(--gold);width:10px;height:10px;margin-right:6px"></i> Pending</button>
+        <button class="fp" onclick="filt('completed',this)"><i data-lucide="circle" style="color:var(--muted);fill:var(--muted);width:10px;height:10px;margin-right:6px"></i> Completed</button>
+      </div>
+      <button class="btn btn-primary" id="new-btn" style="display:none" onclick="openModal()"><i data-lucide="plus" class="icon-inline"></i> New Mission</button>
+    </div>
+    <div class="mg" id="mg"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Create New Mission</div><button class="modal-close" onclick="closeModal()"><i data-lucide="x" style="width:20px;height:20px"></i></button></div>
+    <div class="modal-body">
+      <div class="alert alert-danger" id="m-err"><span id="m-err-msg"></span></div>
+      <div class="form-group"><label class="form-label">Mission Title *</label><input class="form-control" id="m-title" placeholder="e.g. Operation Desert Shield"/></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Location *</label><input class="form-control" id="m-loc" placeholder="e.g. Northern Sector"/></div>
+        <div class="form-group"><label class="form-label">Priority</label><select class="form-control" id="m-pri"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Initial Status</label><select class="form-control" id="m-stat"><option value="pending" selected>Pending</option><option value="active">Active</option></select></div>
+      <div class="form-group"><label class="form-label">Mission Brief</label><textarea class="form-control" id="m-desc" placeholder="Describe objectives..."></textarea></div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createMission()">Create Mission</button></div>
+  </div>
+</div>
+
+<div class="net-banner"></div>
+<button class="helpbot-fab" id="hb-fab"><i data-lucide="bot"></i></button>
+<div class="helpbot-panel" id="hb-panel">
+  <div class="helpbot-head"><div class="helpbot-avatar"><i data-lucide="bot"></i></div><div><h4>SMCS Assistant</h4><p>Ask me anything</p></div></div>
+  <div class="helpbot-msgs" id="hb-msgs"><div class="bot-msg">Ask me about missions, creating updates, or SOS alerts.</div></div>
+  <div class="helpbot-chips"><div class="hchip">Mission</div><div class="hchip">SOS</div><div class="hchip">Offline</div></div>
+  <div class="helpbot-input-row"><input class="helpbot-input" id="hb-input" placeholder="Ask anything..."/><button class="helpbot-send" id="hb-send"><i data-lucide="send" style="width:16px;height:16px"></i></button></div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+let user,all=[],cur='all';
+async function init(){
+  user=await requireAuth(['soldier','commander','admin']);if(!user)return;
+  renderSidebar(user,'missions');
+  renderTopbar(user,'Missions');
+  initSocket(user.id);
+  if(user.role==='commander'||user.role==='admin') document.getElementById('new-btn').style.display='flex';
+  load();
+  document.addEventListener('smcs:mission',()=>load());
+}
+async function load(){try{all=await api('/api/missions');render();}catch{}}
+function filt(s,btn){cur=s;document.querySelectorAll('.fp').forEach(p=>p.classList.remove('on'));btn.classList.add('on');render();}
+function render(){
+  const list=cur==='all'?all:all.filter(m=>m.status===cur);
+  const el=document.getElementById('mg');
+  if(!list.length){el.innerHTML=`<div style="grid-column:span 2" class="empty-state"><div class="empty-icon"><i data-lucide="target"></i></div><div class="empty-text">No ${cur==='all'?'':''+cur} missions</div></div>`; if(typeof lucide!=='undefined') lucide.createIcons(); return;}
+  el.innerHTML=list.map(m=>`
+    <div class="mc fade-up">
+      <div class="mc-head">
+        <div style="flex:1"><div class="m-title">${m.title}</div><div class="m-loc"><i data-lucide="map-pin" class="icon-inline-xs"></i> ${m.location} · by ${m.createdByName}</div></div>
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end">
+          <span class="badge badge-${m.status}">${m.status}</span>
+          <span class="badge badge-${m.priority}">${m.priority}</span>
+        </div>
+      </div>
+      <div class="mc-body">
+        <div class="m-desc">${m.description||'No description provided.'}</div>
+        <div class="upd-label">Updates (${m.updates.length})</div>
+        ${m.updates.length?m.updates.slice(-3).map(u=>`<div class="upd-item"><div class="upd-dot"></div><div><div class="upd-text">${u.text}</div><div class="upd-by">— ${u.by} · ${new Date(u.at).toLocaleString()}</div></div></div>`).join(''):'<div style="font-size:0.81rem;color:var(--muted);padding:4px 0">No updates yet</div>'}
+        <div class="upd-row">
+          <input class="upd-inp" id="ui-${m.id}" placeholder="Post an update..."/>
+          ${(user?.role==='commander'||user?.role==='admin')?`<select class="st-sel" id="ss-${m.id}"><option value="">Status...</option><option value="active">Active</option><option value="pending">Pending</option><option value="completed">Completed</option></select>`:''}
+          <button class="upd-btn" onclick="postUpdate('${m.id}')">Post</button>
+        </div>
+      </div>
+    </div>`).join('');
+  if(typeof lucide!=='undefined') lucide.createIcons();
+}
+async function postUpdate(id){
+  const inp=document.getElementById('ui-'+id);const ss=document.getElementById('ss-'+id);
+  const text=inp?.value.trim();if(!text)return;
+  if(!isOnline){toast('Offline','Cannot post updates offline','warning');return;}
+  try{
+    const body={text};if(ss?.value)body.status=ss.value;
+    const m=await api(`/api/missions/${id}/update`,{method:'POST',body:JSON.stringify(body)});
+    const idx=all.findIndex(x=>x.id===id);if(idx>-1)all[idx]=m;
+    inp.value='';if(ss)ss.value='';render();
+    if(socket)socket.emit('mission_broadcast',m);
+    toast('✅ Update posted','','success',2500);
+  }catch(e){toast('Error',e.message,'danger');}
+}
+function openModal(){document.getElementById('modal').classList.add('open');}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+async function createMission(){
+  document.getElementById('m-err').classList.remove('show');
+  const title=document.getElementById('m-title').value.trim(),loc=document.getElementById('m-loc').value.trim();
+  if(!title||!loc){document.getElementById('m-err-msg').textContent='Title and location required';document.getElementById('m-err').classList.add('show');return;}
+  if(!isOnline){toast('Offline','Cannot create missions offline','warning');return;}
+  try{
+    const m=await api('/api/missions',{method:'POST',body:JSON.stringify({title,location:loc,priority:document.getElementById('m-pri').value,status:document.getElementById('m-stat').value,description:document.getElementById('m-desc').value.trim()})});
+    if(socket)socket.emit('mission_broadcast',m);
+    closeModal();all.unshift(m);render();toast('✅ Mission created',title,'success');
+    ['m-title','m-loc','m-desc'].forEach(i=>document.getElementById(i).value='');
+  }catch(e){document.getElementById('m-err-msg').textContent=e.message;document.getElementById('m-err').classList.add('show');}
+}
+init();
+</script>
+</body>
+</html>
+

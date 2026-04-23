@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SMCS — Settings</title>
+<link rel="stylesheet" href="/css/main.css"/>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+.sl{display:grid;grid-template-columns:210px 1fr;gap:20px;}
+.snav{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:8px;height:fit-content;position:sticky;top:calc(var(--topbar-h) + 20px);}
+.sni{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:500;color:var(--muted);transition:all 0.16s;border:none;background:none;width:100%;text-align:left;font-family:inherit;}
+.sni:hover{background:var(--surface2);color:var(--text);}
+.sni.on{background:var(--green-50);color:var(--green-800);font-weight:600;}
+[data-theme="dark"] .sni.on{background:rgba(74,124,74,0.18);color:var(--green-300);}
+.spane{display:none;}.spane.on{display:block;}
+.srow{display:flex;align-items:flex-start;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);gap:20px;}
+.srow:last-child{border-bottom:none;}
+.srow-info h4{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:3px;}
+.srow-info p{font-size:0.79rem;color:var(--muted);max-width:380px;line-height:1.55;}
+.srow-right{flex-shrink:0;}
+/* Toggle */
+.tog{position:relative;width:46px;height:26px;flex-shrink:0;display:inline-block;}
+.tog input{opacity:0;width:0;height:0;position:absolute;}
+.tog-slider{position:absolute;inset:0;background:var(--border);border-radius:26px;cursor:pointer;transition:background 0.2s;}
+.tog-slider::before{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+.tog input:checked+.tog-slider{background:var(--green-600);}
+.tog input:checked+.tog-slider::before{transform:translateX(20px);}
+/* Theme cards */
+.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.tc{border:2px solid var(--border);border-radius:var(--radius-lg);padding:14px;cursor:pointer;transition:all 0.18s;position:relative;}
+.tc.on{border-color:var(--green-600);background:var(--green-50);}
+[data-theme="dark"] .tc.on{background:rgba(74,124,74,0.15);border-color:var(--green-400);}
+.tc-preview{width:100%;height:44px;border-radius:6px;margin-bottom:10px;display:flex;gap:5px;align-items:center;padding:8px;}
+.tc h4{font-size:0.86rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+.tc p{font-size:0.76rem;color:var(--muted);}
+.tc-check{position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--green-600);color:#fff;display:none;align-items:center;justify-content:center;font-size:0.7rem;}
+.tc.on .tc-check{display:flex;}
+/* PW section */
+.pw-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-top:20px;}
+.pw-box h3{font-family:var(--font-display);font-size:1.1rem;color:var(--text);margin-bottom:4px;}
+.pw-box p{font-size:0.82rem;color:var(--muted);margin-bottom:20px;}
+/* Save bar */
+.save-bar{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;margin-top:20px;border-radius:0 0 var(--radius-lg) var(--radius-lg);}
+.save-status{font-size:0.82rem;color:var(--muted);}
+.save-status.saved{color:var(--success);}
+@media(max-width:768px){.sl{grid-template-columns:1fr;}.snav{position:static;display:flex;flex-wrap:wrap;gap:4px;}}
+</style>
+</head>
+<body>
+<div class="sidebar" id="sidebar"></div>
+<div class="main">
+  <div class="topbar" id="topbar"></div>
+  <div class="page-body">
+    <div class="sl">
+
+      <!-- Nav -->
+      <div class="snav">
+        <button class="sni on" onclick="showTab('general',this)"><span><i data-lucide="settings"></i></span> General</button>
+        <button class="sni" onclick="showTab('notifications',this)"><span><i data-lucide="bell"></i></span> Notifications</button>
+        <button class="sni" onclick="showTab('appearance',this)"><span><i data-lucide="palette"></i></span> Appearance</button>
+        <button class="sni" onclick="showTab('security',this)"><span><i data-lucide="lock"></i></span> Security</button>
+        <button class="sni" onclick="showTab('info',this)"><span><i data-lucide="info"></i></span> System Info</button>
+      </div>
+
+      <div>
+
+        <!-- GENERAL -->
+        <div class="spane on" id="tab-general">
+          <div class="card mb-6">
+            <div class="card-header"><span class="card-title"><i data-lucide="settings" class="icon-inline"></i> General</span></div>
+            <div class="card-body">
+              <div class="srow">
+                <div class="srow-info"><h4>Language</h4><p>Interface language. Applies after saving.</p></div>
+                <div class="srow-right">
+                  <select class="form-control" style="width:160px" id="s-lang" onchange="markDirty()">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="ar">🇸🇦 Arabic</option>
+                    <option value="sw">🇰🇪 Swahili</option>
+                    <option value="rw">🇷🇼 Kinyarwanda</option>
+                  </select>
+                </div>
+              </div>
+              <div class="srow">
+                <div class="srow-info"><h4>Offline Queue</h4><p>Messages queued when you lose connectivity.</p></div>
+                <div class="srow-right" style="text-align:right">
+                  <div style="font-size:0.84rem;font-weight:600;color:var(--text)" id="q-count">Loading...</div>
+                  <button class="btn btn-danger btn-sm" style="margin-top:6px" onclick="clearQueue()">Clear Queue</button>
+                </div>
+              </div>
+              <div class="srow">
+                <div class="srow-info"><h4>Session</h4><p>Your current authenticated session.</p></div>
+                <div class="srow-right">
+                  <span class="badge badge-active">JWT · 24h ✓</span>
+                </div>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="save-status" id="gen-status">No changes</span>
+              <button class="btn btn-primary btn-sm" onclick="saveGeneral()">Save General Settings</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="spane" id="tab-notifications">
+          <div class="card mb-6">
+            <div class="card-header"><span class="card-title"><i data-lucide="bell" class="icon-inline"></i> Notifications</span></div>
+            <div class="card-body">
+              <div class="srow">
+                <div class="srow-info"><h4>New Messages</h4><p>Get notified when you receive a message.</p></div>
+                <label class="tog"><input type="checkbox" id="n-msg" onchange="markNotifDirty()"/><span class="tog-slider"></span></label>
+              </div>
+              <div class="srow">
+                <div class="srow-info"><h4>Mission Updates</h4><p>Alerts for new missions and status changes.</p></div>
+                <label class="tog"><input type="checkbox" id="n-mission" onchange="markNotifDirty()"/><span class="tog-slider"></span></label>
+              </div>
+              <div class="srow">
+                <div class="srow-info"><h4>SOS Alerts</h4><p>Emergency notifications from soldiers (commanders).</p></div>
+                <label class="tog"><input type="checkbox" id="n-sos" onchange="markNotifDirty()"/><span class="tog-slider"></span></label>
+              </div>
+              <div class="srow">
+                <div class="srow-info"><h4>User Status</h4><p>When contacts come online or go offline.</p></div>
+                <label class="tog"><input type="checkbox" id="n-status" onchange="markNotifDirty()"/><span class="tog-slider"></span></label>
+              </div>
+              <div class="srow">
+                <div class="srow-info"><h4>Sound Effects</h4><p>Play sounds for messages and alerts.</p></div>
+                <label class="tog"><input type="checkbox" id="n-sounds" onchange="markNotifDirty()"/><span class="tog-slider"></span></label>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="save-status" id="notif-status">No changes</span>
+              <button class="btn btn-primary btn-sm" onclick="saveNotifications()">Save Notifications</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- APPEARANCE -->
+        <div class="spane" id="tab-appearance">
+          <div class="card mb-6">
+            <div class="card-header"><span class="card-title"><i data-lucide="palette" class="icon-inline"></i> Appearance</span></div>
+            <div class="card-body">
+              <div class="form-label" style="margin-bottom:12px">Theme</div>
+              <div class="theme-grid">
+                <div class="tc" id="tc-light" onclick="setTheme('light')">
+                  <div class="tc-preview" style="background:#faf6f1;border:1px solid #d4e8d4">
+                    <div style="width:28px;height:100%;background:#2e4a2e;border-radius:3px"></div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="height:8px;background:#fff;border-radius:3px"></div><div style="height:6px;background:#eef6ee;border-radius:3px;width:70%"></div></div>
+                  </div>
+                  <h4><i data-lucide="sun" class="icon-inline"></i> Light Mode</h4><p>Clean army green on white</p>
+                  <div class="tc-check"><i data-lucide="check" style="width:12px;height:12px"></i></div>
+                </div>
+                <div class="tc" id="tc-dark" onclick="setTheme('dark')">
+                  <div class="tc-preview" style="background:#111a11;border:1px solid #243324">
+                    <div style="width:28px;height:100%;background:#1a2e1a;border-radius:3px"></div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="height:8px;background:#1e2d1e;border-radius:3px"></div><div style="height:6px;background:#243324;border-radius:3px;width:70%"></div></div>
+                  </div>
+                  <h4><i data-lucide="moon" class="icon-inline"></i> Dark Mode</h4><p>Easy on the eyes at night</p>
+                  <div class="tc-check"><i data-lucide="check" style="width:12px;height:12px"></i></div>
+                </div>
+              </div>
+              <div class="divider"></div>
+              <div class="srow">
+                <div class="srow-info"><h4>Text Size</h4><p>Adjust text size across the interface.</p></div>
+                <div class="srow-right">
+                  <select class="form-control" style="width:150px" id="s-font" onchange="applyFont(this.value)">
+                    <option value="13">Small (13px)</option>
+                    <option value="14" selected>Default (14px)</option>
+                    <option value="16">Large (16px)</option>
+                    <option value="18">Extra Large (18px)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="save-bar">
+              <span class="save-status" id="appear-status">Changes apply immediately</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECURITY / CHANGE PASSWORD -->
+        <div class="spane" id="tab-security">
+          <div class="card mb-6">
+            <div class="card-header"><span class="card-title"><i data-lucide="shield-check" class="icon-inline"></i> Security Status</span></div>
+            <div class="card-body">
+              <div class="srow">
+                <div class="srow-info"><h4>Encryption</h4><p>All messages protected end-to-end.</p></div>
+                <span class="badge badge-active"><i data-lucide="shield" style="width:12px;height:12px;margin-right:4px"></i> AES-256 Active</span>
+              </div>
+              <div class="srow">
+                <div class="srow-info"><h4>Authentication</h4><p>JWT token, expires in 24 hours.</p></div>
+                <span class="badge badge-active">Valid <i data-lucide="check" style="width:12px;height:12px;margin-left:4px"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Change Password box -->
+          <div class="pw-box">
+            <h3><i data-lucide="key" class="icon-inline"></i> Change Password</h3>
+            <p>You'll need your current password to set a new one.</p>
+
+            <div class="alert alert-danger" id="pw-err"><span id="pw-err-msg"></span></div>
+            <div class="alert alert-success" id="pw-ok"><span id="pw-ok-msg"></span></div>
+
+            <div class="form-group">
+              <label class="form-label">Current Password</label>
+              <div class="input-wrap">
+                <span class="input-icon"><i data-lucide="lock" style="width:16px;height:16px"></i></span>
+                <input class="form-control has-icon" type="password" id="cp-cur" placeholder="Enter your current password" style="padding-right:58px" autocomplete="current-password"/>
+                <button class="eye-btn" onclick="togPw('cp-cur')">Show</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password <span class="form-hint">(min 6 characters)</span></label>
+              <div class="input-wrap">
+                <span class="input-icon"><i data-lucide="key" style="width:16px;height:16px"></i></span>
+                <input class="form-control has-icon" type="password" id="cp-new" placeholder="Enter new password" oninput="pwStrength(this.value,'pw-bar2')" style="padding-right:58px" autocomplete="new-password"/>
+                <button class="eye-btn" onclick="togPw('cp-new')">Show</button>
+              </div>
+              <div class="pw-strength" id="pw-bar2"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm New Password</label>
+              <div class="input-wrap">
+                <span class="input-icon"><i data-lucide="key" style="width:16px;height:16px"></i></span>
+                <input class="form-control has-icon" type="password" id="cp-conf" placeholder="Repeat new password" style="padding-right:58px" autocomplete="new-password"/>
+                <button class="eye-btn" onclick="togPw('cp-conf')">Show</button>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="pw-btn" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+
+        <!-- SYSTEM INFO -->
+        <div class="spane" id="tab-info">
+          <div class="card">
+            <div class="card-header"><span class="card-title"><i data-lucide="info" class="icon-inline"></i> System Information</span></div>
+            <div class="card-body">
+              <div style="text-align:center;padding:18px 0 24px">
+                <div style="font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--green-800);letter-spacing:0.05em">SM<span style="color:var(--gold)">CS</span></div>
+                <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-top:4px">Secure Military Communication System</div>
+                <span class="badge badge-active" style="margin-top:12px;display:inline-flex">v1.0.0 · 2024</span>
+              </div>
+              <div class="divider"></div>
+              <div class="srow"><div class="srow-info"><h4>Platform</h4></div><span style="font-size:0.83rem;color:var(--muted)">Node.js + Express + Socket.IO</span></div>
+              <div class="srow"><div class="srow-info"><h4>Encryption</h4></div><span style="font-size:0.83rem;color:var(--muted)">AES-256 / RSA-2048</span></div>
+              <div class="srow"><div class="srow-info"><h4>Auth</h4></div><span style="font-size:0.83rem;color:var(--muted)">JWT (24h expiry)</span></div>
+              <div class="srow"><div class="srow-info"><h4>Offline Support</h4></div><span style="font-size:0.83rem;color:var(--muted)">LocalStorage queue + auto-flush</span></div>
+              <div class="srow"><div class="srow-info"><h4>Real-time</h4></div><span style="font-size:0.83rem;color:var(--muted)">Socket.IO WebSockets</span></div>
+              <div class="srow"><div class="srow-info"><h4>Theme</h4></div><span style="font-size:0.83rem;color:var(--muted)">Light + Dark mode</span></div>
+              <div class="divider"></div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <a href="/about" class="btn btn-ghost btn-sm">About Us</a>
+                <a href="/" class="btn btn-secondary btn-sm">Home Page</a>
+                <button class="btn btn-danger btn-sm" onclick="clearQueue()">Clear Offline Queue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="net-banner"></div>
+<button class="helpbot-fab" id="hb-fab"><i data-lucide="bot"></i></button>
+<div class="helpbot-panel" id="hb-panel">
+  <div class="helpbot-head"><div class="helpbot-avatar"><i data-lucide="bot"></i></div><div><h4>SMCS Assistant</h4><p>Ask me anything</p></div></div>
+  <div class="helpbot-msgs" id="hb-msgs"><div class="bot-msg">Ask me about settings, dark mode, notifications, or changing your password.</div></div>
+  <div class="helpbot-chips"><div class="hchip">Dark mode</div><div class="hchip">Password</div><div class="hchip">Notifications</div><div class="hchip">Offline mode</div></div>
+  <div class="helpbot-input-row"><input class="helpbot-input" id="hb-input" placeholder="Ask anything..."/><button class="helpbot-send" id="hb-send"><i data-lucide="send" style="width:16px;height:16px"></i></button></div>
+</div>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/config.js"></script><script src="/js/app.js"></script>
+<script>
+let user, settingsDirty = false;
+
+async function init(){
+  user = await requireAuth(); if(!user) return;
+  renderSidebar(user,'settings');
+  renderTopbar(user,'Settings');
+  initSocket(user.id);
+  loadSettings(user.settings||{});
+  updateThemeCards();
+  refreshQueueCount();
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  // Open tab from URL param
+  const tab = new URLSearchParams(window.location.search).get('tab');
+  if(tab){ const btn = document.querySelector(`[onclick="showTab('${tab}',this)"]`); if(btn) showTab(tab,btn); }
+}
+
+function showTab(id, btn){
+  document.querySelectorAll('.spane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sni').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id)?.classList.add('on');
+  btn?.classList.add('on');
+}
+
+function loadSettings(s){
+  const get = (id,val) => { const el=document.getElementById(id); if(el) el.value = val||el.options?.[0]?.value||''; };
+  const chk = (id,val) => { const el=document.getElementById(id); if(el) el.checked = val !== false; };
+  get('s-lang', s.language||'en');
+  get('s-font', s.font_size||'14');
+  chk('n-msg',     s.notifications);
+  chk('n-mission', s.missions_notif !== false);
+  chk('n-sos',     s.sos_notif !== false);
+  chk('n-status',  s.status_notif);
+  chk('n-sounds',  s.sounds);
+  if(s.font_size) document.body.style.fontSize = s.font_size+'px';
+}
+
+function refreshQueueCount(){
+  const q = JSON.parse(localStorage.getItem('smcs_offline_queue')||'[]');
+  const el = document.getElementById('q-count');
+  if(el) el.textContent = q.length + ' message' + (q.length!==1?'s':'') + ' queued';
+}
+
+function markDirty(){ settingsDirty=true; const el=document.getElementById('gen-status'); if(el){el.textContent='Unsaved changes';el.className='save-status';} }
+function markNotifDirty(){ const el=document.getElementById('notif-status'); if(el){el.textContent='Unsaved changes';el.className='save-status';} }
+
+async function saveGeneral(){
+  const lang = document.getElementById('s-lang')?.value;
+  try{
+    const d = await api('/api/auth/settings',{method:'PATCH',body:JSON.stringify({language:lang})});
+    user.settings = {...(user.settings||{}),...d.settings};
+    localStorage.setItem('smcs_user',JSON.stringify(user));
+    const el=document.getElementById('gen-status');
+    if(el){el.innerHTML='<i data-lucide="check-circle" style="width:14px;height:14px;margin-right:4px"></i> Saved!';el.className='save-status saved';}
+    toast('✅ General settings saved','','success',2500);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    // Apply language change feedback
+    toast(`Language set to: ${document.getElementById('s-lang').options[document.getElementById('s-lang').selectedIndex].text}`,'','info',2500);
+    setTimeout(()=>{const el=document.getElementById('gen-status');if(el){el.textContent='No changes';el.className='save-status';}},3000);
+  }catch(e){toast('Error',e.message,'danger');}
+}
+
+async function saveNotifications(){
+  const settings = {
+    notifications: document.getElementById('n-msg')?.checked,
+    missions_notif: document.getElementById('n-mission')?.checked,
+    sos_notif: document.getElementById('n-sos')?.checked,
+    status_notif: document.getElementById('n-status')?.checked,
+    sounds: document.getElementById('n-sounds')?.checked,
+  };
+  try{
+    const d = await api('/api/auth/settings',{method:'PATCH',body:JSON.stringify(settings)});
+    user.settings = {...(user.settings||{}),...d.settings};
+    localStorage.setItem('smcs_user',JSON.stringify(user));
+    const el=document.getElementById('notif-status');
+    if(el){el.innerHTML='<i data-lucide="check-circle" style="width:14px;height:14px;margin-right:4px"></i> Saved!';el.className='save-status saved';}
+    toast('✅ Notification settings saved','','success',2500);
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    setTimeout(()=>{const el=document.getElementById('notif-status');if(el){el.textContent='No changes';el.className='save-status';}},3000);
+  }catch(e){toast('Error',e.message,'danger');}
+}
+
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('smcs_theme',t);
+  updateThemeCards();
+  const btn = document.getElementById('theme-btn'); 
+  if(btn) {
+    btn.innerHTML = t==='dark'?'<i data-lucide="sun"></i>':'<i data-lucide="moon"></i>';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  }
+  api('/api/auth/settings',{method:'PATCH',body:JSON.stringify({theme:t})}).then(d=>{
+    if(user) user.settings={...user.settings,...d.settings};
+    localStorage.setItem('smcs_user',JSON.stringify(user));
+    toast(`${t==='dark'?'🌙 Dark':'☀️ Light'} mode enabled`,'','success',2000);
+  }).catch(()=>{});
+}
+
+function updateThemeCards(){
+  const curr = document.documentElement.getAttribute('data-theme')||'light';
+  document.getElementById('tc-light')?.classList.toggle('on', curr==='light');
+  document.getElementById('tc-dark')?.classList.toggle('on', curr==='dark');
+}
+
+function applyFont(sz){
+  document.body.style.fontSize = sz+'px';
+  api('/api/auth/settings',{method:'PATCH',body:JSON.stringify({font_size:sz})}).then(d=>{
+    if(user) user.settings={...user.settings,...d.settings};
+    localStorage.setItem('smcs_user',JSON.stringify(user));
+    toast(`Text size set to ${sz}px`,'','success',2000);
+  }).catch(()=>{});
+}
+
+function clearQueue(){
+  if(!confirm('Clear all offline queued messages? They will not be sent.')) return;
+  localStorage.removeItem('smcs_offline_queue');
+  refreshQueueCount();
+  toast('Queue cleared','','success',2000);
+}
+
+async function changePassword(){
+  document.getElementById('pw-err').classList.remove('show');
+  document.getElementById('pw-ok').classList.remove('show');
+  const cur  = document.getElementById('cp-cur').value;
+  const np   = document.getElementById('cp-new').value;
+  const conf = document.getElementById('cp-conf').value;
+  if(!cur||!np||!conf){ showPwErr('Please fill all three password fields'); return; }
+  if(np.length < 6){ showPwErr('New password must be at least 6 characters'); return; }
+  if(np !== conf){ showPwErr('New passwords do not match'); return; }
+  const btn = document.getElementById('pw-btn');
+  btn.disabled=true; btn.textContent='Updating...';
+  try{
+    const d = await api('/api/auth/change-password',{method:'POST',body:JSON.stringify({currentPassword:cur,newPassword:np,confirmPassword:conf})});
+    document.getElementById('pw-ok-msg').textContent = d.message;
+    document.getElementById('pw-ok').classList.add('show');
+    ['cp-cur','cp-new','cp-conf'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('pw-bar2').className='pw-strength';
+    toast('✅ Password changed successfully','','success',4000);
+  }catch(e){ showPwErr(e.message); }
+  finally{ btn.disabled=false; btn.textContent='Update Password'; }
+}
+
+function showPwErr(msg){
+  document.getElementById('pw-err-msg').textContent=msg;
+  document.getElementById('pw-err').classList.add('show');
+}
+
+init();
+</script>
+</body>
+</html>
+
