@@ -20,7 +20,7 @@ function toggleTheme() {
 initTheme();
 
 // ─── API ───
-const BASE = window.API_BASE_URL || 'https://smcs-backend-1.onrender.com';
+const BASE = window.API_BASE_URL || 'https://smcs-backend-2.onrender.com';
 window.BASE = BASE;
 let currentUser = null;
 let socket = null;

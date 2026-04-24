@@ -3,7 +3,7 @@ const isLocal = window.location.hostname === 'localhost' || window.location.host
 
 const BACKEND = isLocal
   ? 'http://localhost:5500'
-  : 'https://smcs-backend-1.onrender.com';
+  : 'https://smcs-backend-2.onrender.com';
 
 window.API_BASE_URL = BACKEND;
 window.SOCKET_URL   = BACKEND;
