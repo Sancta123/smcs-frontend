@@ -20,7 +20,8 @@ function toggleTheme() {
 initTheme();
 
 // ─── API ───
-const BASE = window.API_BASE_URL || 'https://smcs-backend-2.onrender.com/api';
+const BASE = window.API_BASE_URL || 'https://smcs-backend-1.onrender.com';
+window.BASE = BASE;
 let currentUser = null;
 let socket = null;
 let isOnline = navigator.onLine;
@@ -145,7 +146,7 @@ function updateNetIndicator() {
 // ─── SOCKET ───
 function initSocket(userId) {
   if (typeof io === 'undefined') return;
-  socket = io(BASE);
+  socket = io(window.SOCKET_URL || BASE);
   socket.emit('auth', userId);
 
   socket.on('new_message', msg => {
